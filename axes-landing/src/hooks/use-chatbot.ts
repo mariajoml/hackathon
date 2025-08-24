@@ -488,7 +488,7 @@ export function useChatbot(userSkills: string[] = []) {
   }, [casualChatStep]);
 
   const getResults = useCallback(() => {
-    return state.skillEvaluations.filter(evaluation => evaluation.finalLevel);
+    return state.skillEvaluations.filter(skillEvaluation => skillEvaluation.finalLevel);
   }, [state.skillEvaluations]);
 
   return {

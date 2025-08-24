@@ -1,6 +1,10 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useOptimizedFetch } from "./use-optimized-fetch";
+import { optimizedStorage } from "@/lib/performance";
 
 interface SignupData {
   email: string;
@@ -16,7 +20,11 @@ interface LoginData {
 interface AuthResponse {
   success: boolean;
   message?: string;
-  data?: any;
+  data?: {
+    type: "Empleado";
+    display_name?: string;
+    [key: string]: any;
+  };
 }
 
 const SIGNIN_URL = "https://techrea.app.n8n.cloud/webhook/signin";
@@ -25,8 +33,10 @@ const LOGIN_URL = "https://techrea.app.n8n.cloud/webhook/login";
 export function useAuth() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const router = useRouter();
+  const { fetchData } = useOptimizedFetch<any>();
 
-  const signup = async (data: SignupData): Promise<AuthResponse> => {
+  const signup = useCallback(async (data: SignupData): Promise<AuthResponse> => {
     setIsLoading(true);
     setError(null);
 
@@ -37,6 +47,7 @@ export function useAuth() {
         password: data.password,
         data: {
           display_name: data.display_name,
+          type: "Empleado"
         },
       };
 
@@ -76,10 +87,25 @@ export function useAuth() {
 
       setIsLoading(false);
 
+      // Guardar información del usuario con storage optimizado
+      optimizedStorage.set("axes-employee-auth", "true");
+      optimizedStorage.set("axes-employee-profile", {
+        email: data.email,
+        display_name: data.display_name,
+        type: "Empleado"
+      });
+
+      toast.success("¡Cuenta creada exitosamente!");
+      router.push("/onboarding");
+
       return {
         success: true,
         message: "Cuenta creada exitosamente",
-        data: result,
+        data: {
+          ...result,
+          type: "Empleado" as const,
+          display_name: data.display_name
+        },
       };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error desconocido";
@@ -91,9 +117,9 @@ export function useAuth() {
         message: errorMessage,
       };
     }
-  };
+  }, [router]);
 
-  const login = async (data: LoginData): Promise<AuthResponse> => {
+  const login = useCallback(async (data: LoginData): Promise<AuthResponse> => {
     setIsLoading(true);
     setError(null);
 
@@ -140,10 +166,24 @@ export function useAuth() {
 
       setIsLoading(false);
 
+      // Guardar información del usuario con storage optimizado
+      optimizedStorage.set("axes-employee-auth", "true");
+      optimizedStorage.set("axes-employee-profile", {
+        email: data.email,
+        type: "Empleado",
+        ...result
+      });
+
+      toast.success("¡Inicio de sesión exitoso!");
+      router.push("/dashboard");
+
       return {
         success: true,
         message: "Inicio de sesión exitoso",
-        data: result,
+        data: {
+          ...result,
+          type: "Empleado" as const
+        },
       };
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : "Error desconocido";
@@ -155,7 +195,7 @@ export function useAuth() {
         message: errorMessage,
       };
     }
-  };
+  }, [router]);
 
   const clearError = () => setError(null);
 

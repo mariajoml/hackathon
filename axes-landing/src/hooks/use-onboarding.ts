@@ -98,7 +98,8 @@ export function useOnboarding() {
 
   const isProfileComplete = (): boolean => {
     const profile = getProfile();
-    return profile?.status === "profile_completed";
+    // Verificar si el perfil tiene los campos básicos requeridos
+    return !!(profile?.fullName && profile?.currentRole && profile?.skills && profile?.skills.length > 0);
   };
 
   const clearError = () => setError(null);

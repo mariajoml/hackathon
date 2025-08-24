@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "../styles/axes-colors.css";
+@import "../styles/dark-mode.css";
+@import "../styles/light-mode.css";
 
 @media (prefers-color-scheme: dark) {
   :root {
@@ -46,29 +47,10 @@
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
-  /* AXES Modern Color Palette */
-  --color-axes-primary: #7C3AED;
-  --color-axes-primary-dark: #5B21B6;
-  --color-axes-primary-light: #A855F7;
-  
-  /* Backgrounds - More balanced and modern */
-  --color-axes-bg-primary: #0F1419;
-  --color-axes-bg-secondary: #1A1F2E;
-  --color-axes-bg-tertiary: #1E2A3A;
-  --color-axes-bg-card: #232B3D;
-  --color-axes-bg-hover: #2A3441;
-  
-  /* Text colors with better contrast */
-  --color-axes-text-primary: #F1F5F9;
-  --color-axes-text-secondary: #CBD5E1;
-  --color-axes-text-muted: #94A3B8;
-  
-  /* Borders and accents */
-  --color-axes-border: #334155;
-  --color-axes-border-light: #475569;
-  --color-axes-accent: #E879F9;
-  --color-axes-accent-soft: #C084FC;
+  /* AXES Color Variables - Defined in separate theme files */
 }
+
+/* Light Mode variables are now defined in light-mode.css */
 
 :root {
   --radius: 0.625rem;
@@ -166,10 +148,23 @@
     color-scheme: dark;
   }
   
-  body {
-    background: linear-gradient(135deg, #0F1419 0%, #1A1F2E 50%, #1E2A3A 100%);
-    color: #F1F5F9;
-    min-height: 100vh;
-    background-attachment: fixed;
+  /* Tema basado en data-theme para evitar hydration mismatch */
+  html[data-theme="light"] {
+    color-scheme: light;
   }
+  
+  html[data-theme="dark"] {
+    color-scheme: dark;
+  }
+  
+  /* Clase dark añadida dinámicamente después de hidratación */
+  html.dark {
+    color-scheme: dark;
+  }
+  
+  html.light {
+    color-scheme: light;
+  }
+  
+  /* Body styles are now defined in theme-specific CSS files */
 }

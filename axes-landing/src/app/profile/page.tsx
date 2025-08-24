@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 import { 
   MapPin, 
@@ -104,6 +105,7 @@ export default function ProfilePage() {
             </Button>
             
             <div className="flex items-center space-x-3">
+              <ThemeToggle />
               <Button
                 className="axes-btn-ghost rounded-xl"
               >

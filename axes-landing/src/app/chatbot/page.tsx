@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { SwipeCard } from "@/components/swipe-card";
 import { useChatbot, Message } from "@/hooks/use-chatbot";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 import { 
   MessageCircle, 
@@ -124,26 +125,29 @@ export default function ChatbotPage() {
     <div className="min-h-screen py-8 px-4">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex items-center mb-8">
-          <Button
-            onClick={() => window.history.back()}
-            variant="outline"
-            className="axes-btn-outline rounded-xl mr-4"
-          >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Volver
-          </Button>
-          <div>
-            <h1 className="text-4xl font-bold text-white mb-2">
-              Chat con AXES AI
-            </h1>
-            <p className="text-white/70">
-              {state.phase === "intro" && "Prepárate para conocer a tu asistente personal"}
-              {state.phase === "casual_chat" && "Conversación casual - sin presión"}
-              {state.phase === "technical_evaluation" && "Evaluación técnica interactiva"}
-              {state.phase === "results" && "Resultados de tu evaluación"}
-            </p>
+        <div className="flex items-center justify-between mb-8">
+          <div className="flex items-center">
+            <Button
+              onClick={() => window.history.back()}
+              variant="outline"
+              className="axes-btn-outline rounded-xl mr-4"
+            >
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Volver
+            </Button>
+            <div>
+              <h1 className="text-4xl font-bold text-axes-text-primary mb-2">
+                Chat con AXES AI
+              </h1>
+              <p className="text-axes-text-secondary">
+                {state.phase === "intro" && "Prepárate para conocer a tu asistente personal"}
+                {state.phase === "casual_chat" && "Conversación casual - sin presión"}
+                {state.phase === "technical_evaluation" && "Evaluación técnica interactiva"}
+                {state.phase === "results" && "Resultados de tu evaluación"}
+              </p>
+            </div>
           </div>
+          <ThemeToggle />
         </div>
 
         {/* Chat Interface */}

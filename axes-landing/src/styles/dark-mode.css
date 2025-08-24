@@ -1,0 +1,196 @@
+/* ========================================
+   AXES DARK MODE - Tema Oscuro Profesional
+   ======================================== */
+
+/* Variables de color para Dark Mode */
+:root,
+[data-theme="dark"] {
+  /* Colores primarios */
+  --color-axes-primary: #7C3AED;
+  --color-axes-primary-dark: #5B21B6;
+  --color-axes-primary-light: #A855F7;
+
+  /* Fondos oscuros elegantes */
+  --color-axes-bg-primary: #0F1419;
+  --color-axes-bg-secondary: #1A1F2E;
+  --color-axes-bg-tertiary: #1E2A3A;
+  --color-axes-bg-card: #232B3D;
+  --color-axes-bg-hover: #2A3441;
+
+  /* Textos con buen contraste */
+  --color-axes-text-primary: #F1F5F9;
+  --color-axes-text-secondary: #CBD5E1;
+  --color-axes-text-muted: #94A3B8;
+
+  /* Bordes y acentos */
+  --color-axes-border: #334155;
+  --color-axes-border-light: #475569;
+  --color-axes-accent: #E879F9;
+  --color-axes-accent-soft: #C084FC;
+}
+
+/* Gradiente de fondo para Dark Mode */
+[data-theme="dark"] body,
+body {
+  background: linear-gradient(135deg, var(--color-axes-bg-primary) 0%, var(--color-axes-bg-secondary) 50%, var(--color-axes-bg-tertiary) 100%);
+  color: var(--color-axes-text-primary);
+  min-height: 100vh;
+  background-attachment: fixed;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ========================================
+   COMPONENTES DARK MODE
+   ======================================== */
+
+/* Cards en Dark Mode */
+[data-theme="dark"] .axes-card,
+.axes-card {
+  background-color: var(--color-axes-bg-card);
+  border: 1px solid var(--color-axes-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .axes-card:hover,
+.axes-card:hover {
+  background-color: var(--color-axes-bg-hover);
+  border-color: var(--color-axes-border-light);
+}
+
+/* Glass effect en Dark Mode */
+[data-theme="dark"] .axes-glass,
+.axes-glass {
+  background: rgba(35, 43, 61, 0.7);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s ease;
+}
+
+/* Navegación en Dark Mode */
+[data-theme="dark"] .axes-nav,
+.axes-nav {
+  background: rgba(15, 20, 25, 0.8);
+  border-bottom: 1px solid var(--color-axes-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+}
+
+/* ========================================
+   BOTONES DARK MODE
+   ======================================== */
+
+/* Botón primario */
+[data-theme="dark"] .axes-btn-primary,
+.axes-btn-primary {
+  background: linear-gradient(135deg, var(--color-axes-primary) 0%, var(--color-axes-primary-dark) 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .axes-btn-primary:hover,
+.axes-btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-axes-primary-dark) 0%, #4C1D95 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+}
+
+/* Botón secundario */
+[data-theme="dark"] .axes-btn-secondary,
+.axes-btn-secondary {
+  background: var(--color-axes-bg-card);
+  border: 1px solid var(--color-axes-border-light);
+  color: var(--color-axes-text-primary);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .axes-btn-secondary:hover,
+.axes-btn-secondary:hover {
+  background: var(--color-axes-bg-hover);
+  border-color: var(--color-axes-primary);
+  color: var(--color-axes-primary);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+
+/* Botón outline */
+[data-theme="dark"] .axes-btn-outline,
+.axes-btn-outline {
+  background: transparent;
+  border: 2px solid var(--color-axes-border-light);
+  color: var(--color-axes-text-secondary);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .axes-btn-outline:hover,
+.axes-btn-outline:hover {
+  background: var(--color-axes-bg-card);
+  border-color: var(--color-axes-primary);
+  color: var(--color-axes-primary);
+}
+
+/* Botón ghost */
+[data-theme="dark"] .axes-btn-ghost,
+.axes-btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--color-axes-text-secondary);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .axes-btn-ghost:hover,
+.axes-btn-ghost:hover {
+  background: var(--color-axes-bg-card);
+  color: var(--color-axes-text-primary);
+}
+
+/* ========================================
+   INPUTS DARK MODE
+   ======================================== */
+
+[data-theme="dark"] .axes-input,
+.axes-input {
+  background: var(--color-axes-bg-card);
+  border: 1px solid var(--color-axes-border);
+  color: var(--color-axes-text-primary);
+  transition: all 0.3s ease;
+}
+
+[data-theme="dark"] .axes-input:focus,
+.axes-input:focus {
+  border-color: var(--color-axes-primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+[data-theme="dark"] .axes-input::placeholder,
+.axes-input::placeholder {
+  color: var(--color-axes-text-muted);
+}
+
+/* ========================================
+   UTILIDADES DARK MODE
+   ======================================== */
+
+/* Utilidades de fondo */
+[data-theme="dark"] .bg-axes-primary { background-color: var(--color-axes-bg-primary); }
+[data-theme="dark"] .bg-axes-secondary { background-color: var(--color-axes-bg-secondary); }
+[data-theme="dark"] .bg-axes-tertiary { background-color: var(--color-axes-bg-tertiary); }
+[data-theme="dark"] .bg-axes-card { background-color: var(--color-axes-bg-card); }
+[data-theme="dark"] .bg-axes-hover { background-color: var(--color-axes-bg-hover); }
+
+/* Utilidades de texto */
+[data-theme="dark"] .text-axes-primary { color: var(--color-axes-text-primary); }
+[data-theme="dark"] .text-axes-secondary { color: var(--color-axes-text-secondary); }
+[data-theme="dark"] .text-axes-muted { color: var(--color-axes-text-muted); }
+
+/* Utilidades de borde */
+[data-theme="dark"] .border-axes { border-color: var(--color-axes-border); }
+[data-theme="dark"] .border-axes-light { border-color: var(--color-axes-border-light); }

@@ -1,0 +1,479 @@
+/* ========================================
+   AXES LIGHT MODE - Tema Claro Profesional
+   ======================================== */
+
+/* Variables de color para Light Mode */
+[data-theme="light"] {
+  /* Colores primarios (mantienen consistencia) */
+  --color-axes-primary: #7C3AED;
+  --color-axes-primary-dark: #5B21B6;
+  --color-axes-primary-light: #A855F7;
+
+  /* Fondos claros y limpios */
+  --color-axes-bg-primary: #FFFFFF;
+  --color-axes-bg-secondary: #F8F9FA;
+  --color-axes-bg-tertiary: #F1F3F4;
+  --color-axes-bg-card: #FFFFFF;
+  --color-axes-bg-hover: #F7F4FF;
+
+  /* Textos oscuros para máxima legibilidad */
+  --color-axes-text-primary: #1A1A1A;
+  --color-axes-text-secondary: #2D2D2D;
+  --color-axes-text-muted: #4F4F4F;
+
+  /* Bordes suaves pero visibles */
+  --color-axes-border: #D1C4E9;
+  --color-axes-border-light: #E1D5F0;
+  --color-axes-accent: #7C3AED;
+  --color-axes-accent-soft: #A855F7;
+}
+
+/* Gradiente de fondo para Light Mode */
+[data-theme="light"] body {
+  background: linear-gradient(135deg, #FFFFFF 0%, #F8F9FA 30%, #F7F4FF 70%, #F1F3F4 100%);
+  color: var(--color-axes-text-primary);
+  min-height: 100vh;
+  background-attachment: fixed;
+  transition: background 0.3s ease, color 0.3s ease;
+}
+
+/* ========================================
+   COMPONENTES LIGHT MODE
+   ======================================== */
+
+/* Cards en Light Mode */
+[data-theme="light"] .axes-card {
+  background-color: #FFFFFF;
+  border: 2px solid var(--color-axes-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+[data-theme="light"] .axes-card:hover {
+  background-color: var(--color-axes-bg-hover);
+  border-color: var(--color-axes-primary);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12), 0 4px 8px rgba(124, 58, 237, 0.08);
+  transform: translateY(-2px);
+}
+
+/* Glass effect en Light Mode */
+[data-theme="light"] .axes-glass {
+  background: rgba(255, 255, 255, 0.95);
+  border: 2px solid var(--color-axes-border);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08), 0 4px 16px rgba(124, 58, 237, 0.06);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: all 0.3s ease;
+}
+
+/* Navegación en Light Mode */
+[data-theme="light"] .axes-nav {
+  background: rgba(255, 255, 255, 0.98);
+  border-bottom: 2px solid var(--color-axes-border);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: all 0.3s ease;
+}
+
+/* ========================================
+   BOTONES LIGHT MODE
+   ======================================== */
+
+/* Botón primario - mantiene el mismo estilo */
+[data-theme="light"] .axes-btn-primary {
+  background: linear-gradient(135deg, var(--color-axes-primary) 0%, var(--color-axes-primary-dark) 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+  transition: all 0.3s ease;
+}
+
+[data-theme="light"] .axes-btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-axes-primary-dark) 0%, #4C1D95 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.25);
+}
+
+/* Botón secundario */
+[data-theme="light"] .axes-btn-secondary {
+  background: #FFFFFF;
+  border: 2px solid var(--color-axes-border);
+  color: var(--color-axes-text-primary);
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+}
+
+[data-theme="light"] .axes-btn-secondary:hover {
+  background: var(--color-axes-bg-hover);
+  border-color: var(--color-axes-primary);
+  color: var(--color-axes-primary);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+/* Botón outline */
+[data-theme="light"] .axes-btn-outline {
+  background: #FFFFFF;
+  border: 2px solid var(--color-axes-border);
+  color: var(--color-axes-text-secondary);
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+[data-theme="light"] .axes-btn-outline:hover {
+  background: var(--color-axes-bg-hover);
+  border-color: var(--color-axes-primary);
+  color: var(--color-axes-primary);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}
+
+/* Botón ghost */
+[data-theme="light"] .axes-btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--color-axes-text-secondary);
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+[data-theme="light"] .axes-btn-ghost:hover {
+  background: var(--color-axes-bg-hover);
+  color: var(--color-axes-text-primary);
+}
+
+/* ========================================
+   INPUTS LIGHT MODE
+   ======================================== */
+
+[data-theme="light"] .axes-input {
+  background: #FFFFFF;
+  border: 2px solid var(--color-axes-border);
+  color: var(--color-axes-text-primary);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+  transition: all 0.3s ease;
+}
+
+[data-theme="light"] .axes-input:focus {
+  background: #FFFFFF;
+  border-color: var(--color-axes-primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12), 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+[data-theme="light"] .axes-input::placeholder {
+  color: var(--color-axes-text-muted);
+}
+
+/* ========================================
+   SECCIONES ESPECIALES LIGHT MODE
+   ======================================== */
+
+/* Secciones con fondo blanco sólido */
+[data-theme="light"] .axes-section {
+  background: #FFFFFF;
+  border: 2px solid var(--color-axes-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+}
+
+/* Secciones internas con fondo suave */
+[data-theme="light"] .axes-inner-section {
+  background: var(--color-axes-bg-hover);
+  border: 1px solid var(--color-axes-border);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+}
+
+/* ========================================
+   UTILIDADES LIGHT MODE
+   ======================================== */
+
+/* Utilidades de fondo */
+[data-theme="light"] .bg-axes-primary { background-color: var(--color-axes-bg-primary); }
+[data-theme="light"] .bg-axes-secondary { background-color: var(--color-axes-bg-secondary); }
+[data-theme="light"] .bg-axes-tertiary { background-color: var(--color-axes-bg-tertiary); }
+[data-theme="light"] .bg-axes-card { background-color: var(--color-axes-bg-card); }
+[data-theme="light"] .bg-axes-hover { background-color: var(--color-axes-bg-hover); }
+
+/* Utilidades de texto */
+[data-theme="light"] .text-axes-primary { color: var(--color-axes-text-primary); }
+[data-theme="light"] .text-axes-secondary { color: var(--color-axes-text-secondary); }
+[data-theme="light"] .text-axes-muted { color: var(--color-axes-text-muted); }
+
+/* Utilidades de borde */
+[data-theme="light"] .border-axes { border-color: var(--color-axes-border); }
+[data-theme="light"] .border-axes-light { border-color: var(--color-axes-border-light); }
+
+/* ========================================
+   MEJORAS DE COLORES ESPECÍFICAS
+   ======================================== */
+
+/* Badges mejorados para light mode */
+[data-theme="light"] .bg-blue-500\/20 {
+  background-color: rgba(59, 130, 246, 0.12) !important;
+}
+
+[data-theme="light"] .text-blue-600 {
+  color: #1D4ED8 !important;
+}
+
+[data-theme="light"] .bg-green-500\/20 {
+  background-color: rgba(34, 197, 94, 0.12) !important;
+}
+
+[data-theme="light"] .text-green-600 {
+  color: #059669 !important;
+}
+
+[data-theme="light"] .bg-orange-500\/20 {
+  background-color: rgba(249, 115, 22, 0.12) !important;
+}
+
+[data-theme="light"] .text-orange-600 {
+  color: #C2410C !important;
+}
+
+[data-theme="light"] .text-yellow-500 {
+  color: #D97706 !important;
+}
+
+/* ========================================
+   CLASES DE EMERGENCIA PARA MÁXIMA VISIBILIDAD
+   ======================================== */
+
+[data-theme="light"] .axes-text-ultra-dark {
+  color: #000000 !important;
+}
+
+[data-theme="light"] .axes-text-very-dark {
+  color: #1a1a1a !important;
+}
+
+[data-theme="light"] .axes-bg-pure-white {
+  background-color: #FFFFFF !important;
+  border: 2px solid var(--color-axes-border) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+
+/* ========================================
+   ARREGLOS ESPECÍFICOS PARA ELEMENTOS PROBLEMÁTICOS
+   ======================================== */
+
+/* Arreglar textos blancos en light mode */
+[data-theme="light"] .text-white {
+  color: var(--color-axes-text-primary) !important;
+}
+
+[data-theme="light"] .text-white\/70 {
+  color: var(--color-axes-text-secondary) !important;
+}
+
+[data-theme="light"] .text-white\/80 {
+  color: var(--color-axes-text-secondary) !important;
+}
+
+[data-theme="light"] .text-white\/60 {
+  color: var(--color-axes-text-muted) !important;
+}
+
+[data-theme="light"] .text-white\/50 {
+  color: var(--color-axes-text-muted) !important;
+}
+
+[data-theme="light"] .text-white\/40 {
+  color: var(--color-axes-text-muted) !important;
+}
+
+/* Arreglar fondos problemáticos */
+[data-theme="light"] .bg-white\/5 {
+  background-color: var(--color-axes-bg-card) !important;
+  border: 1px solid var(--color-axes-border) !important;
+}
+
+[data-theme="light"] .bg-white\/10 {
+  background-color: var(--color-axes-bg-hover) !important;
+  border: 1px solid var(--color-axes-border) !important;
+}
+
+[data-theme="light"] .bg-white\/20 {
+  background-color: var(--color-axes-bg-hover) !important;
+  border: 1px solid var(--color-axes-border) !important;
+}
+
+[data-theme="light"] .bg-black\/20 {
+  background-color: var(--color-axes-bg-hover) !important;
+  border: 1px solid var(--color-axes-border) !important;
+}
+
+[data-theme="light"] .bg-black\/50 {
+  background-color: var(--color-axes-bg-card) !important;
+  border: 2px solid var(--color-axes-border) !important;
+}
+
+/* Arreglar bordes problemáticos */
+[data-theme="light"] .border-white\/10 {
+  border-color: var(--color-axes-border) !important;
+}
+
+[data-theme="light"] .border-white\/20 {
+  border-color: var(--color-axes-border) !important;
+}
+
+[data-theme="light"] .border-white\/30 {
+  border-color: var(--color-axes-border) !important;
+}
+
+[data-theme="light"] .border-black\/50 {
+  border-color: var(--color-axes-border) !important;
+}
+
+/* Arreglar placeholders */
+[data-theme="light"] .placeholder\:text-white\/40::placeholder {
+  color: var(--color-axes-text-muted) !important;
+}
+
+/* Arreglar inputs específicos */
+[data-theme="light"] input.bg-white\/5,
+[data-theme="light"] textarea.bg-white\/5,
+[data-theme="light"] select.bg-white\/5 {
+  background-color: #FFFFFF !important;
+  border: 2px solid var(--color-axes-border) !important;
+  color: var(--color-axes-text-primary) !important;
+}
+
+[data-theme="light"] input.border-white\/20,
+[data-theme="light"] textarea.border-white\/20,
+[data-theme="light"] select.border-white\/20 {
+  border-color: var(--color-axes-border) !important;
+}
+
+/* Arreglar focus states */
+[data-theme="light"] input:focus.border-white\/20,
+[data-theme="light"] textarea:focus.border-white\/20,
+[data-theme="light"] select:focus.border-white\/20 {
+  border-color: var(--color-axes-primary) !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12) !important;
+}
+
+/* ========================================
+   ARREGLOS ADICIONALES PARA COMPONENTES ESPECÍFICOS
+   ======================================== */
+
+/* Arreglar badges problemáticos */
+[data-theme="light"] .bg-white\/10.text-white\/60 {
+  background-color: var(--color-axes-bg-hover) !important;
+  color: var(--color-axes-text-muted) !important;
+  border: 1px solid var(--color-axes-border) !important;
+}
+
+/* Arreglar barras de progreso */
+[data-theme="light"] .bg-white\/10 {
+  background-color: var(--color-axes-bg-hover) !important;
+}
+
+/* Arreglar iconos en contenedores oscuros */
+[data-theme="light"] .text-white.w-4.h-4,
+[data-theme="light"] .text-white.w-5.h-5 {
+  color: var(--color-axes-text-primary) !important;
+}
+
+/* Arreglar contenedores de avatar */
+[data-theme="light"] .bg-white\/20 {
+  background-color: var(--color-axes-bg-card) !important;
+  border: 1px solid var(--color-axes-border) !important;
+}
+
+/* Arreglar elementos de debug */
+[data-theme="light"] .text-white\/40 {
+  color: var(--color-axes-text-muted) !important;
+}
+
+/* Arreglar steps/indicadores */
+[data-theme="light"] .bg-white\/20 {
+  background-color: var(--color-axes-bg-hover) !important;
+}
+
+/* Arreglar elementos de estado */
+[data-theme="light"] .text-white\/50 {
+  color: var(--color-axes-text-muted) !important;
+}
+
+/* Arreglar hover states problemáticos */
+[data-theme="light"] .hover\:bg-white\/10:hover {
+  background-color: var(--color-axes-bg-hover) !important;
+}
+
+/* Arreglar elementos con múltiples clases problemáticas */
+[data-theme="light"] .bg-transparent.border-white\/30.text-white\/50 {
+  background-color: transparent !important;
+  border-color: var(--color-axes-border) !important;
+  color: var(--color-axes-text-muted) !important;
+}
+
+/* Arreglar elementos específicos del chatbot */
+[data-theme="light"] .bg-white\/10.border.border-white\/20 {
+  background-color: var(--color-axes-bg-card) !important;
+  border-color: var(--color-axes-border) !important;
+}
+
+/* Arreglar elementos de loading/carga */
+[data-theme="light"] .text-white\/70 {
+  color: var(--color-axes-text-secondary) !important;
+}
+
+/* ========================================
+   ARREGLOS GLOBALES AGRESIVOS
+   ======================================== */
+
+/* Capturar TODOS los elementos con texto blanco */
+
+[data-theme="light"] *[class*="text-white"]:not([class*="text-axes"]) {
+  color: var(--color-axes-text-primary) !important;
+}
+
+/* Capturar TODOS los fondos problemáticos */
+[data-theme="light"] *[class*="bg-white/"]:not([class*="bg-axes"]) {
+  background-color: var(--color-axes-bg-card) !important;
+  border: 1px solid var(--color-axes-border) !important;
+}
+
+[data-theme="light"] *[class*="bg-black/"]:not([class*="bg-axes"]) {
+  background-color: var(--color-axes-bg-card) !important;
+  border: 1px solid var(--color-axes-border) !important;
+}
+
+/* Capturar TODOS los bordes problemáticos */
+[data-theme="light"] *[class*="border-white/"]:not([class*="border-axes"]) {
+  border-color: var(--color-axes-border) !important;
+}
+
+[data-theme="light"] *[class*="border-black/"]:not([class*="border-axes"]) {
+  border-color: var(--color-axes-border) !important;
+}
+
+/* Arreglar específicamente elementos comunes problemáticos */
+[data-theme="light"] .text-white,
+[data-theme="light"] .text-white\/10,
+[data-theme="light"] .text-white\/20,
+[data-theme="light"] .text-white\/30,
+[data-theme="light"] .text-white\/40,
+[data-theme="light"] .text-white\/50,
+[data-theme="light"] .text-white\/60,
+[data-theme="light"] .text-white\/70,
+[data-theme="light"] .text-white\/80,
+[data-theme="light"] .text-white\/90 {
+  color: var(--color-axes-text-primary) !important;
+}
+
+/* Arreglar opacidades de texto blanco */
+[data-theme="light"] .text-white\/60,
+[data-theme="light"] .text-white\/70 {
+  color: var(--color-axes-text-secondary) !important;
+}
+
+[data-theme="light"] .text-white\/40,
+[data-theme="light"] .text-white\/50 {
+  color: var(--color-axes-text-muted) !important;
+}

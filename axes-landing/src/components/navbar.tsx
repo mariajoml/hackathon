@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { useState, useEffect } from "react";
 
 export function Navbar() {
@@ -37,19 +38,19 @@ export function Navbar() {
           <div className="hidden md:flex items-center space-x-8">
             <a
               href="#personas"
-              className="text-white/80 hover:text-white transition-colors duration-200"
+              className="text-axes-text-secondary hover:text-axes-text-primary transition-colors duration-200"
             >
               Personas
             </a>
-            <a
-              href="#empresas"
-              className="text-white/80 hover:text-white transition-colors duration-200"
-            >
-              Empresas
-            </a>
+                                    <a
+                          href="/auth/company"
+                          className="text-axes-text-secondary hover:text-axes-text-primary transition-colors duration-200"
+                        >
+                          Empresas
+                        </a>
             <a
               href="#faq"
-              className="text-white/80 hover:text-white transition-colors duration-200"
+              className="text-axes-text-secondary hover:text-axes-text-primary transition-colors duration-200"
             >
               FAQ
             </a>
@@ -57,17 +58,20 @@ export function Navbar() {
 
           {/* Action Buttons */}
           <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              className="axes-btn-secondary rounded-xl"
-            >
-              Ingresar
-            </Button>
-            <Button
-              className="axes-btn-primary rounded-2xl px-6 transition-all duration-200"
-            >
-              Explorar
-            </Button>
+            <ThemeToggle />
+                                    <Button
+                          variant="ghost"
+                          className="axes-btn-secondary rounded-xl"
+                          onClick={() => window.location.href = '/auth'}
+                        >
+                          Ingresar
+                        </Button>
+                        <Button
+                          className="axes-btn-primary rounded-2xl px-6 transition-all duration-200"
+                          onClick={() => window.location.href = '/auth'}
+                        >
+                          Comenzar
+                        </Button>
           </div>
         </div>
       </div>
