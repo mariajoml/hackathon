@@ -1,0 +1,2623 @@
+{
+  "name": "Formularios",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Blandas').item.json.query.message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Quiero que actúes como un reclutador experto en entrevistas por competencias.\n\nRecibirás una autodescripción de un candidato.\nCon base en ese texto, genera exactamente 10 preguntas de entrevista personalizadas para evaluar las siguientes habilidades blandas:\n\n- Comunicación\n- Trabajo en equipo\n- Resolución de problemas\n- Inteligencia emocional\n- Adaptabilidad\n- Liderazgo\n- Gestión del tiempo\n- Ética laboral\n- Pensamiento crítico\n- Creatividad\n- Motivación\n- Resiliencia\n- Manejo de frustración\n- Proyección a futuro\n\nInstrucciones:\n- Las 10 preguntas deben estar adaptadas al perfil descrito por el candidato.\n- Cada pregunta debe evaluar una o más de estas habilidades (de forma que las 14 queden cubiertas en el total de las 10 preguntas).\n- Sólo responde con las preguntas,no digas que se está calificando con la pregunta."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "54c9830f-a228-40ef-bd67-c906b957b21e",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "openai/o3-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        144,
+        208
+      ],
+      "id": "ec9534f9-ec01-4021-9b42-cb5e4d6af574",
+      "name": "OpenRouter Chat Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"message\": {{ JSON.stringify($json.output) }},\n  \"code\": 200\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        560,
+        0
+      ],
+      "id": "ea11aef5-37ae-46d6-ad65-45c81685e5c8",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"sessionId\": \" {{ $json.query.sessionId }}\",\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        32,
+        0
+      ],
+      "id": "3a9d6e40-e21e-417c-a366-5182485bbc07",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "tableName": "n8n_chat_softskills",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        256,
+        272
+      ],
+      "id": "9d377981-3596-409b-956d-6d19326330c5",
+      "name": "Postgres Chat Memory",
+      "credentials": {
+        "postgres": {
+          "id": "wOjx1almQ3rCKvfN",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"pregunta1\": \"Cuéntame sobre una ocasión en la que tuviste que colaborar con un equipo diverso. ¿Qué rol asumiste y cómo contribuiste al resultado?\",\n  \"pregunta2\": \"Háblame de un desacuerdo que tuviste en el trabajo y cómo lo manejaste.\",\n  \"pregunta3\": \"Descríbeme una situación en la que un cambio inesperado te obligó a ajustar tu manera de trabajar.\",\n  \"pregunta4\": \"Dame un ejemplo de cómo explicaste un tema complejo a alguien sin conocimientos técnicos.\",\n  \"pregunta5\": \"Cuéntame sobre una ocasión en la que identificaste un problema antes de que se convirtiera en algo grave y qué hiciste al respecto.\",\n  \"pregunta6\": \"Relátame una situación en la que tuviste que liderar a un grupo bajo presión. ¿Qué acciones tomaste para mantener la motivación?\",\n  \"pregunta7\": \"Cuéntame cómo organizas tu tiempo cuando tienes múltiples tareas urgentes. ¿Qué criterios usas para priorizar?\",\n  \"pregunta8\": \"Háblame de una ocasión en la que tuviste que tomar una decisión difícil con información limitada. ¿Cómo llegaste a tu conclusión?\",\n  \"pregunta9\": \"Menciona un momento en el que sentiste frustración en el trabajo o estudio. ¿Qué hiciste para manejarla?\",\n  \"pregunta10\": \"¿Dónde te imaginas profesionalmente en cinco años y qué pasos estás tomando para lograrlo?\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        464,
+        208
+      ],
+      "id": "d5b19c42-cfc1-4696-b04c-b7cb18c6a8bf",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Blandas1').item.json.body }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Quiero que actúes como un evaluador experto en entrevistas por competencias.\n\nRecibirás:\n- Las preguntas realizadas en la entrevista.\n- Las respuestas del candidato a cada pregunta.\n\nTu tarea es:\n- Analizar cada respuesta y determinar qué habilidades blandas se ponen en evidencia.\n- Evaluar el nivel mostrado en esas habilidades con base en la calidad, claridad, detalle y consistencia de la respuesta.\n- No generes texto, ni descripciones o explicaciones del resultado, solo genera una porcentaje.\n- Genera un porcentaje de desempeño (0% a 100%) para cada una de las siguientes habilidades blandas:\n- Comunicación\n- Trabajo en equipo\n- Resolución de problemas\n- Inteligencia emocional\n- Adaptabilidad\n- Liderazgo\n- Gestión del tiempo\n- Ética laboral\n- Pensamiento crítico\n- Creatividad\n- Motivación\n- Resiliencia\n- Manejo de frustración\n- Proyección a futuro"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        448
+      ],
+      "id": "d1b0df3e-a465-463c-85d2-4418a8c449ed",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        80,
+        640
+      ],
+      "id": "935033dc-6b2e-4c3c-978c-d22799f0439b",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": "n8n_chat_soft_skill"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        720
+      ],
+      "id": "6e9af74d-b4c8-4b33-9eee-40ef858d9ee5",
+      "name": "Postgres Chat Memory1",
+      "credentials": {
+        "postgres": {
+          "id": "wOjx1almQ3rCKvfN",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"Comunicación\": \"85%\",\n    \"Trabajo en equipo\": \"90%\",\n    \"Resolución de problemas\": \"75%\",\n    \"Inteligencia emocional\": \"80%\",\n    \"Adaptabilidad\": \"70%\",\n    \"Liderazgo\": \"88%\",\n    \"Gestión del tiempo\": \"82%\",\n    \"Ética laboral\": \"95%\",\n    \"Pensamiento crítico\": \"78%\",\n    \"Creatividad\": \"84%\",\n    \"Motivación\": \"92%\",\n    \"Resiliencia\": \"76%\",\n    \"Manejo de frustración\": \"73%\",\n    \"Proyección a futuro\": \"87%\"\n  }",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        336,
+        656
+      ],
+      "id": "851128ea-9a1e-4144-8ad6-252d1772aca3",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"message\": \"Análisis de Habilidades Blandas exitoso\",\n  \"code\": 200\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1264,
+        448
+      ],
+      "id": "1f6da19f-66b2-4389-88c8-235cdecfa02b",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.tecnologies }}",
+        "options": {
+          "systemMessage": "Actúas como un generador experto de cuestionarios técnicos para un sistema automatizado. Tu única función es procesar una cadena de texto que contiene habilidades y porcentajes, y generar un cuestionario de Verdadero o Falso en formato JSON.\n\nRecibirás una entrada como esta: `\"Python (80%), React (65%), Calculo Diferencial (30%)\"`\n\nPara CADA habilidad y porcentaje en la cadena de entrada, debes seguir estas reglas estrictas:\n\n1.  **Generar Exactamente 6 Afirmaciones:** Para cada habilidad, debes crear una lista que contenga **exactamente 6 afirmaciones** que puedan ser evaluadas como verdaderas o falsas.\n2.  **Ajustar la Dificultad:** La complejidad y sutileza de cada afirmación debe basarse directamente en el porcentaje proporcionado:\n    *   **0-40% (Principiante):** Afirmaciones sobre hechos fundamentales y conceptos muy básicos.\n    *   **41-70% (Intermedio):** Afirmaciones que pueden requerir la comprensión de la aplicación práctica o distinguir entre conceptos similares.\n    *   **71-100% (Avanzado):** Afirmaciones complejas sobre casos de uso específicos, optimización, detalles internos de la tecnología o \"mitos\" comunes que requieren un conocimiento profundo para ser desmentidos.\n3.  **Formato de Pregunta:** Cada una de las 6 afirmaciones debe tener:\n    *   El texto de la afirmación.\n    *   La respuesta correcta, que debe ser un valor booleano (`true` para Verdadero, `false` para Falso).\n\n4.  **Formato de Salida Obligatorio:** Tu única salida debe ser un único bloque de código JSON válido. No incluyas explicaciones, texto introductorio, ni nada fuera del JSON. La estructura del JSON debe ser la siguiente: Un objeto principal donde cada clave es el nombre de la habilidad y su valor es un array de 6 objetos, cada uno representando una afirmación.\n\n**Estructura del JSON de Salida:**\n```json\n{\n  \"NombreDeLaHabilidad_1\": [\n    {\n      \"afirmacion\": \"Texto completo de la afirmación 1.\",\n      \"respuesta_correcta\": true\n    },\n    {\n      \"afirmacion\": \"Texto completo de la afirmación 2.\",\n      \"respuesta_correcta\": false\n    }\n    // ... y así sucesivamente hasta completar las 6 afirmaciones\n  ],\n  \"NombreDeLaHabilidad_2\": [\n    // ... 6 afirmaciones para esta habilidad ...\n  ]\n}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1856,
+        0
+      ],
+      "id": "0d76a6cd-8866-4c3b-8f7c-2bb95803b84d",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-3.5-haiku",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        192
+      ],
+      "id": "9410fe36-3c42-45b3-87bb-43b2a6c27926",
+      "name": "OpenRouter Chat Model2",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"message\": {{ $('AI Agent2').item.json.output }},\n  \"porcentajes\": \"{{ $json.porcentajes }}\",\n  \"code\": 200\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2416,
+        0
+      ],
+      "id": "73cede02-e539-433a-9966-3a18f1bed9d2",
+      "name": "Respond to Webhook2"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"sessionId\": \"{{ $json.body.sessionId }}\",\n  \"tecnologies\": \"{{ $json.body.tecnologies }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1648,
+        0
+      ],
+      "id": "474394f1-91c8-46cc-b857-1005fc09eb58",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "tableName": "n8n_chat_techskills",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        1904,
+        272
+      ],
+      "id": "17f13956-8c14-4897-bba7-1de4326375ac",
+      "name": "Postgres Chat Memory2",
+      "credentials": {
+        "postgres": {
+          "id": "wOjx1almQ3rCKvfN",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"pregunta1\": \"Cuéntame sobre una ocasión en la que tuviste que colaborar con un equipo diverso. ¿Qué rol asumiste y cómo contribuiste al resultado?\",\n  \"pregunta2\": \"Háblame de un desacuerdo que tuviste en el trabajo y cómo lo manejaste.\",\n  \"pregunta3\": \"Descríbeme una situación en la que un cambio inesperado te obligó a ajustar tu manera de trabajar.\",\n  \"pregunta4\": \"Dame un ejemplo de cómo explicaste un tema complejo a alguien sin conocimientos técnicos.\",\n  \"pregunta5\": \"Cuéntame sobre una ocasión en la que identificaste un problema antes de que se convirtiera en algo grave y qué hiciste al respecto.\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2128,
+        208
+      ],
+      "id": "3662a9d8-d09d-47ec-891d-fc37dc3d03ec",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "formulario_habilidades_blandas",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -160,
+        0
+      ],
+      "id": "9c3be84a-fe82-4ad6-aa98-42d0570b798b",
+      "name": "Blandas",
+      "webhookId": "9fd6cb40-6e48-4814-b6fb-47181ff7bf64"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "respuestas_formulario_habilidades_blandas",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -416,
+        448
+      ],
+      "id": "6292ae48-c750-4b10-8fc9-94d0665c6204",
+      "name": "Blandas1",
+      "webhookId": "d93c6387-08dc-452e-a8c1-63c678f24306"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "formulario_habilidades_tecnicas",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1424,
+        0
+      ],
+      "id": "c26645d6-1cc5-4e7e-9830-2b51f5ca0582",
+      "name": "Tecnicas",
+      "webhookId": "9fd6cb40-6e48-4814-b6fb-47181ff7bf64"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Tecnicas1').item.json.body }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Quiero que actúes como un sistema de procesamiento de datos automatizado. Tu única función es transformar un JSON de entrada en un JSON de salida siguiendo reglas estrictas.\nRecibirás un JSON con datos de una evaluación.\nTu respuesta final debe ser única y exclusivamente un objeto JSON válido. No incluyas texto, explicaciones, markdown o cualquier otro contenido que no sea el propio objeto JSON.\nEjemplo de Formato de Salida Obligatorio\nTu salida debe seguir esta estructura exacta, usando los nombres reales de las habilidades del archivo de entrada, siempre en minúsculas:\nJSON\n{\n  \"habilidad_1_en_minusculas\": \"XX%\",\n  \"habilidad_2_en_minusculas\": \"YY%\",\n  \"habilidad_3_en_minusculas\": \"ZZ%\"\n}\nReglas de Cálculo Interno\nPara calcular los valores, sigue estas reglas internamente. No muestres este proceso en la salida:\nAGRUPAR: Identifica una habilidad y agrupa todas sus preguntas.\nCONTAR ACIERTOS: Cuenta el número total de respuestas correctas para esa habilidad (numero_de_aciertos).\nCALCULAR MODIFICADOR: Calcula el modificador con la fórmula: (numero_de_aciertos - 4) * 10.\nAPLICAR MODIFICADOR: Toma el porcentaje base, conviértelo a número, y súmale el modificador para obtener un resultado_preliminar.\nVALIDAR LÍMITES:\nSi resultado_preliminar > 100, el valor final es 100.\nSi resultado_preliminar < 0, el valor final es 0.\nDe lo contrario, el valor final es el resultado_preliminar.\nCONSTRUIR EL JSON: Agrega la habilidad (en minúsculas) como clave y el valor final (como string con '%') como valor al objeto JSON de salida."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2272,
+        448
+      ],
+      "id": "2fe50d25-865f-48b8-8120-950470ab172a",
+      "name": "AI Agent3"
+    },
+    {
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4",
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2064,
+        672
+      ],
+      "id": "8f55cfdc-105d-4a09-83e3-91b43604c7db",
+      "name": "OpenRouter Chat Model3",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableName": "n8n_chat_techskills"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        2288,
+        704
+      ],
+      "id": "3f345f76-bca6-40fa-9f4f-3582168ec4d8",
+      "name": "Postgres Chat Memory3",
+      "credentials": {
+        "postgres": {
+          "id": "wOjx1almQ3rCKvfN",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"Comunicación\": \"85%\",\n    \"Trabajo en equipo\": \"90%\",\n    \"Resolución de problemas\": \"75%\",\n    \"Inteligencia emocional\": \"80%\",\n    \"Adaptabilidad\": \"70%\",\n    \"Liderazgo\": \"88%\",\n    \"Gestión del tiempo\": \"82%\",\n    \"Ética laboral\": \"95%\",\n    \"Pensamiento crítico\": \"78%\",\n    \"Creatividad\": \"84%\",\n    \"Motivación\": \"92%\",\n    \"Resiliencia\": \"76%\",\n    \"Manejo de frustración\": \"73%\",\n    \"Proyección a futuro\": \"87%\"\n  }"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        2608,
+        720
+      ],
+      "id": "480bc514-dbb8-4db0-9f0f-e5d365bdb9ed",
+      "name": "Structured Output Parser3"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"message\": \"Análisis de Habilidades Técnicas exitoso\",\n  \"code\": 200\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        3024,
+        448
+      ],
+      "id": "404411b5-62c7-4e46-aef5-4daa07ea6680",
+      "name": "Respond to Webhook3"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "respuestas_formulario_habilidades_tecnicas",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1616,
+        448
+      ],
+      "id": "09d7202c-4ef0-4f39-954a-103cf43fba3d",
+      "name": "Tecnicas1",
+      "webhookId": "d93c6387-08dc-452e-a8c1-63c678f24306"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "user_data",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "correo",
+              "keyValue": "={{ $('Blandas1').item.json.body.sessionId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        688,
+        448
+      ],
+      "id": "ddf06606-7948-4c8f-837b-648fa0a4f24a",
+      "name": "Get a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Procesar cada item del input\nfor (const item of $input.all()) {\n  // Crear un nuevo objeto para el output limpio\n  const cleanOutput = {};\n  \n  // Iterar sobre cada propiedad en el objeto output\n  for (const [key, value] of Object.entries(item.json.output)) {\n    // Verificar si el valor es string y contiene %\n    if (typeof value === 'string' && value.includes('%')) {\n      // Remover el % y convertir a número\n      cleanOutput[key] = parseFloat(value.replace('%', ''));\n    } else {\n      // Mantener el valor original si no tiene %\n      cleanOutput[key] = value;\n    }\n  }\n  \n  // Devolver el item con el output limpio\n  item.json.output = cleanOutput;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        448
+      ],
+      "id": "8e06c0cb-3be8-404a-8c2b-a8ddbfe984ae",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "tableId": "employee_data_soft_skill",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nombre",
+              "fieldValue": "={{ $json.display_name }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $json.correo }}"
+            },
+            {
+              "fieldId": "comunicacion",
+              "fieldValue": "={{ $('Code2').item.json.output[\"Comunicación\"] }}"
+            },
+            {
+              "fieldId": "trabajo_en_equipo",
+              "fieldValue": "={{ $('Code2').item.json.output[\"Trabajo en equipo\"] }}"
+            },
+            {
+              "fieldId": "resolucion_de_problemas",
+              "fieldValue": "={{ $('Code2').item.json.output[\"Resolución de problemas\"] }}"
+            },
+            {
+              "fieldId": "inteligencia_emocional",
+              "fieldValue": "={{ $('Code2').item.json.output[\"Inteligencia emocional\"] }}"
+            },
+            {
+              "fieldId": "adaptabilidad",
+              "fieldValue": "={{ $('Code2').item.json.output.Adaptabilidad }}"
+            },
+            {
+              "fieldId": "liderazgo",
+              "fieldValue": "={{ $('Code2').item.json.output.Liderazgo }}"
+            },
+            {
+              "fieldId": "gestion_del_tiempo",
+              "fieldValue": "={{ $('Code2').item.json.output[\"Gestión del tiempo\"] }}"
+            },
+            {
+              "fieldId": "etica_laboral",
+              "fieldValue": "={{ $('Code2').item.json.output[\"Ética laboral\"] }}"
+            },
+            {
+              "fieldId": "pensamiento_critico",
+              "fieldValue": "={{ $('Code2').item.json.output[\"Pensamiento crítico\"] }}"
+            },
+            {
+              "fieldId": "creatividad",
+              "fieldValue": "={{ $('Code2').item.json.output.Creatividad }}"
+            },
+            {
+              "fieldId": "motivacion",
+              "fieldValue": "={{ $('Code2').item.json.output[\"Motivación\"] }}"
+            },
+            {
+              "fieldId": "resiliencia",
+              "fieldValue": "={{ $('Code2').item.json.output.Resiliencia }}"
+            },
+            {
+              "fieldId": "manejo_de_frustracion",
+              "fieldValue": "={{ $('Code2').item.json.output[\"Manejo de frustración\"] }}"
+            },
+            {
+              "fieldId": "proyeccion_a_futuro",
+              "fieldValue": "={{ $('Code2').item.json.output[\"Proyección a futuro\"] }}"
+            },
+            {
+              "fieldId": "fecha_creacion",
+              "fieldValue": "={{ $now }}"
+            },
+            {
+              "fieldId": "fecha_actualizacion",
+              "fieldValue": "={{ $now }}"
+            },
+            {
+              "fieldId": "fecha_creacion",
+              "fieldValue": "={{ $now }}"
+            },
+            {
+              "fieldId": "fecha_actualizacion",
+              "fieldValue": "={{ $now }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        880,
+        448
+      ],
+      "id": "e4c3b7bc-f77e-4f12-907d-70bb330658fc",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/o3-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        400,
+        800
+      ],
+      "id": "4bdf943b-e6a5-429c-a5d6-dd292b7a960a",
+      "name": "OpenRouter Chat Model4",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener el texto de entrada desde el nodo Edit Fields1\nconst inputText = $('Edit Fields1').first().json.tecnologies || '';\n\n// Regex para encontrar todos los porcentajes en el formato (XX%)\nconst percentageRegex = /\\((\\d+%)\\)/g;\n\n// Extraer todos los porcentajes\nconst matches = [...inputText.matchAll(percentageRegex)];\nconst percentages = matches.map(match => match[1]);\n\n// Crear el objeto JSON con los porcentajes como array\nconst result = {\n  porcentajes: percentages\n};\n\n// Retornar el resultado\nreturn [{ json: result }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2208,
+        0
+      ],
+      "id": "8e47059c-bd9d-4c3c-89b8-7280beed50d9",
+      "name": "Code3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Empresa').item.json.body.message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Quiero que actúes como un consultor experto en diagnóstico organizacional.\n\nRecibirás una autodescripción de una empresa (misión, sector, tamaño, estructura, procesos, métricas, cultura, retos recientes).\n\nCon base en ese texto, genera exactamente 10 preguntas de entrevista personalizadas para evaluar estas capacidades organizacionales:\n- Seguridad psicológica\n- Propósito y misión claros\n- Transparencia\n- Ownership y rendición de cuentas\n- Autonomía y empoderamiento\n- Inclusión y diversidad\n- Aprendizaje continuo\n- Reconocimiento justo y frecuente\n- Enfoque en el cliente\n- Decisiones basadas en datos\n- Experimentación y tolerancia al error\n- Colaboración anti-silos\n- Bienestar y ritmo sostenible\n- Mejora continua (Kaizen)\n\nInstrucciones:\n- Las 10 preguntas deben estar adaptadas al perfil organizacional de la empresa.\n- Cada pregunta debe evaluar una o más de estas capacidades (de forma que las 14 queden cubiertas en el total de las 10 preguntas).\n- Sólo responde con las preguntas,no digas que se está calificando con la pregunta."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        1024
+      ],
+      "id": "a5e43f0c-ed8e-4d84-9724-356b3886c541",
+      "name": "AI Agent4"
+    },
+    {
+      "parameters": {
+        "model": "openai/o3-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        112,
+        1232
+      ],
+      "id": "b779bfb3-451f-4abc-9469-6790edd4e00c",
+      "name": "OpenRouter Chat Model5",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"message\": {{ JSON.stringify($json.output) }},\n  \"code\": 200\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        528,
+        1024
+      ],
+      "id": "010720cb-8d37-46f1-a5f5-735c50f52848",
+      "name": "Respond to Webhook4"
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"sessionId\": \"{{ $json.body.sessionId }}\",\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        0,
+        1024
+      ],
+      "id": "f6534a3e-1c30-4572-b7bc-4d90a6403df8",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        224,
+        1296
+      ],
+      "id": "e88d796e-6c1c-4b2b-bb09-f3bec6c9fc59",
+      "name": "Postgres Chat Memory4",
+      "credentials": {
+        "postgres": {
+          "id": "wOjx1almQ3rCKvfN",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"pregunta1\": \"Cuéntame sobre una ocasión en la que tuviste que colaborar con un equipo diverso. ¿Qué rol asumiste y cómo contribuiste al resultado?\",\n  \"pregunta2\": \"Háblame de un desacuerdo que tuviste en el trabajo y cómo lo manejaste.\",\n  \"pregunta3\": \"Descríbeme una situación en la que un cambio inesperado te obligó a ajustar tu manera de trabajar.\",\n  \"pregunta4\": \"Dame un ejemplo de cómo explicaste un tema complejo a alguien sin conocimientos técnicos.\",\n  \"pregunta5\": \"Cuéntame sobre una ocasión en la que identificaste un problema antes de que se convirtiera en algo grave y qué hiciste al respecto.\",\n  \"pregunta6\": \"Relátame una situación en la que tuviste que liderar a un grupo bajo presión. ¿Qué acciones tomaste para mantener la motivación?\",\n  \"pregunta7\": \"Cuéntame cómo organizas tu tiempo cuando tienes múltiples tareas urgentes. ¿Qué criterios usas para priorizar?\",\n  \"pregunta8\": \"Háblame de una ocasión en la que tuviste que tomar una decisión difícil con información limitada. ¿Cómo llegaste a tu conclusión?\",\n  \"pregunta9\": \"Menciona un momento en el que sentiste frustración en el trabajo o estudio. ¿Qué hiciste para manejarla?\",\n  \"pregunta10\": \"¿Dónde te imaginas profesionalmente en cinco años y qué pasos estás tomando para lograrlo?\"\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        480,
+        1232
+      ],
+      "id": "ce07e16f-4d7b-4ff5-9b8a-b4ccd2dad15e",
+      "name": "Structured Output Parser4"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.entrevista }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Actúa como un evaluador experto en diagnóstico cultural organizacional.\n\nRecibirás:\n\npreguntas_entrevista: arreglo con las preguntas realizadas a la empresa.\n\nrespuestas_empresa: arreglo con las respuestas de la empresa (mismo orden).\n\nTu tarea:\n\nAnaliza cada respuesta y determina evidencia para las siguientes capacidades culturales:\n\nSeguridad psicológica\n\nPropósito y misión claros\n\nTransparencia\n\nOwnership y rendición de cuentas\n\nAutonomía y empoderamiento\n\nInclusión y diversidad\n\nAprendizaje continuo\n\nReconocimiento justo y frecuente\n\nEnfoque en el cliente\n\nDecisiones basadas en datos\n\nExperimentación y tolerancia al error\n\nColaboración anti-silos\n\nBienestar y ritmo sostenible\n\nMejora continua (Kaizen)\n\nEvalúa cada capacidad con base en la calidad, claridad, detalle, consistencia y evidencia presentada (p. ej., políticas/procesos formales, métricas/KPIs, prácticas vigentes, cobertura organizacional, resultados y aprendizajes).\n\nReglas:\n\nDevuelve solo porcentajes (enteros 0–100 seguidos de “%”).\n\nNo incluyas guías, descripciones, explicaciones ni texto fuera del JSON.\n\nPenaliza la falta de evidencia o ambigüedad en las respuestas."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        1472
+      ],
+      "id": "1ad3338c-26c8-45eb-90f6-e8164cc795fd",
+      "name": "AI Agent5"
+    },
+    {
+      "parameters": {
+        "model": "openai/o3-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        80,
+        1664
+      ],
+      "id": "bbd294a3-14b0-4cba-b6c1-f83df1a089ff",
+      "name": "OpenRouter Chat Model6",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        208,
+        1744
+      ],
+      "id": "ca9be208-8e25-45d1-9a39-769088da6f20",
+      "name": "Postgres Chat Memory5",
+      "credentials": {
+        "postgres": {
+          "id": "wOjx1almQ3rCKvfN",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"Seguridad psicológica\": \"10%\",\n    \"Propósito y misión claros\": \"90%\",\n    \"Transparencia\": \"80%\",\n    \"Ownership y rendición de cuentas\": \"100%\",\n    \"Autonomía y empoderamiento\": \"50%\",\n    \"Inclusión y diversidad\": \"60%\",\n    \"Aprendizaje continuo\": \"70%\",\n    \"Reconocimiento justo y frecuente\": \"90%\",\n    \"Enfoque en el cliente\": \"80%\",\n    \"Decisiones basadas en datos\": \"75%\",\n    \"Experimentación y tolerancia al error\": \"95%\",\n    \"Colaboración anti-silos\": \"87%\",\n    \"Bienestar y ritmo sostenible\": \"68%\",\n    \"Mejora continua (Kaizen)\": \"70%\"\n  }",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        384,
+        1664
+      ],
+      "id": "2033cb23-9866-4645-aaa5-d77916dc4b53",
+      "name": "Structured Output Parser5"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"message\": \"Análisis de Habilidades Blandas exitoso\",\n  \"code\": 200\n} ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1072,
+        1472
+      ],
+      "id": "a3247e2d-13d6-4bcf-b1cd-78c31be6596d",
+      "name": "Respond to Webhook5"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener los datos del webhook\nconst webhookData = $input.first().json.body;\n\n// Extraer sessionId\nconst sessionId = $input.first().json.body.sessionId;\n\n// Construir el texto completo de la entrevista\nlet entrevistaTexto = '';\n\nfor (let i = 1; i <= 10; i++) {\n  const pregunta = webhookData[`pregunta${i}`];\n  const respuesta = webhookData[`respuesta${i}`];\n  \n  if (pregunta && respuesta) {\n    entrevistaTexto += `Pregunta ${i}: ${pregunta}\\n\\n`;\n    entrevistaTexto += `Respuesta ${i}: ${respuesta}\\n\\n`;\n  }\n}\n\n// Limpiar caracteres problemáticos\nentrevistaTexto = entrevistaTexto\n  .replace(/\"/g, '')  // Quitar comillas dobles\n  .replace(/'/g, '')  // Quitar comillas simples\n  .trim();           // Quitar espacios extra\n\n// Retornar los datos limpios\nreturn [\n  {\n    json: {\n      sessionId: sessionId,\n      entrevista: entrevistaTexto\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -16,
+        1472
+      ],
+      "id": "b582d0ba-7580-4372-921b-cde98e5af864",
+      "name": "Code4"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "user_data",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "correo",
+              "keyValue": "={{ $('Empresa1').item.json.body.sessionId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        688,
+        1472
+      ],
+      "id": "6d53bea1-1068-4f1c-881a-6bc91412cd18",
+      "name": "Get a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Procesar cada item del input\nfor (const item of $input.all()) {\n  // Crear un nuevo objeto para el output limpio\n  const cleanOutput = {};\n  \n  // Iterar sobre cada propiedad en el objeto output\n  for (const [key, value] of Object.entries(item.json.output)) {\n    // Verificar si el valor es string y contiene %\n    if (typeof value === 'string' && value.includes('%')) {\n      // Remover el % y convertir a número\n      cleanOutput[key] = parseFloat(value.replace('%', ''));\n    } else {\n      // Mantener el valor original si no tiene %\n      cleanOutput[key] = value;\n    }\n  }\n  \n  // Devolver el item con el output limpio\n  item.json.output = cleanOutput;\n}\n\nreturn $input.all();"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        1472
+      ],
+      "id": "32667ec5-de71-44eb-9338-0cfbb86d6e4e",
+      "name": "Code5"
+    },
+    {
+      "parameters": {
+        "tableId": "employer_data_cultural_values",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $json.display_name }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $json.correo }}"
+            },
+            {
+              "fieldId": "psychological_safety",
+              "fieldValue": "={{ $('Code5').item.json.output['Seguridad psicológica'] }}"
+            },
+            {
+              "fieldId": "clear_purpose_and_mission",
+              "fieldValue": "={{ $('Code5').item.json.output['Propósito y misión claros'] }}"
+            },
+            {
+              "fieldId": "transparency",
+              "fieldValue": "={{ $('Code5').item.json.output.Transparencia }}"
+            },
+            {
+              "fieldId": "ownership_and_accountability",
+              "fieldValue": "={{ $('Code5').item.json.output['Ownership y rendición de cuentas'] }}"
+            },
+            {
+              "fieldId": "autonomy_and_empowerment",
+              "fieldValue": "={{ $('Code5').item.json.output['Autonomía y empoderamiento'] }}"
+            },
+            {
+              "fieldId": "inclusion_and_diversity",
+              "fieldValue": "={{ $('Code5').item.json.output['Inclusión y diversidad'] }}"
+            },
+            {
+              "fieldId": "continuous_learning",
+              "fieldValue": "={{ $('Code5').item.json.output['Aprendizaje continuo'] }}"
+            },
+            {
+              "fieldId": "fair_and_frequent_recognition",
+              "fieldValue": "={{ $('Code5').item.json.output['Reconocimiento justo y frecuente'] }}"
+            },
+            {
+              "fieldId": "customer_focus",
+              "fieldValue": "={{ $('Code5').item.json.output['Enfoque en el cliente'] }}"
+            },
+            {
+              "fieldId": "data_driven_decisions",
+              "fieldValue": "={{ $('Code5').item.json.output['Decisiones basadas en datos'] }}"
+            },
+            {
+              "fieldId": "experimentation_and_error_tolerance",
+              "fieldValue": "={{ $('Code5').item.json.output['Experimentación y tolerancia al error'] }}"
+            },
+            {
+              "fieldId": "anti_silo_collaboration",
+              "fieldValue": "={{ $('Code5').item.json.output['Colaboración anti-silos'] }}"
+            },
+            {
+              "fieldId": "wellbeing_and_sustainable_pace",
+              "fieldValue": "={{ $('Code5').item.json.output['Bienestar y ritmo sostenible'] }}"
+            },
+            {
+              "fieldId": "continuous_improvement_kaizen",
+              "fieldValue": "={{ $('Code5').item.json.output['Mejora continua (Kaizen)'] }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        880,
+        1472
+      ],
+      "id": "de634a8b-61cd-4ea4-9fb0-f9e1d1aa16a7",
+      "name": "Create a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/o3-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        400,
+        1824
+      ],
+      "id": "2f071a39-0633-4c78-856f-5c1b8caa7135",
+      "name": "OpenRouter Chat Model7",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "formulario_empresa",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        1024
+      ],
+      "id": "9f300fb4-389b-4415-86ca-98242a936c10",
+      "name": "Empresa",
+      "webhookId": "9fd6cb40-6e48-4814-b6fb-47181ff7bf64"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "respuestas_formulario_empresa",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        1472
+      ],
+      "id": "c81c1515-060a-4606-adf9-d9334d6f5624",
+      "name": "Empresa1",
+      "webhookId": "d93c6387-08dc-452e-a8c1-63c678f24306"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "tableId": "user_data",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "correo",
+              "keyValue": "={{ $('Edit Fields5').item.json.sessionId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2624,
+        448
+      ],
+      "id": "3a99b2dc-77df-4180-93e8-e56c00357297",
+      "name": "Get a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "employee_data_tech_skill",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "name",
+              "fieldValue": "={{ $json.display_name }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $json.correo }}"
+            },
+            {
+              "fieldId": "tech_skills",
+              "fieldValue": "={{ $('AI Agent3').item.json.output }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        2832,
+        448
+      ],
+      "id": "3da9eb7d-0225-42b2-8bc2-5252c46703f4",
+      "name": "Create a row2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/o3-mini",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        416,
+        1360
+      ],
+      "id": "ddbeb9ff-c6d3-40d7-97db-fd9727802ec0",
+      "name": "OpenRouter Chat Model8",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "employer_data_cultural_values",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        2688,
+        1184
+      ],
+      "id": "db45c513-51ea-4e4b-ad5c-35f37e4adb67",
+      "name": "Conexion a Cultural",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "employee_data_soft_skill",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        2544,
+        1232
+      ],
+      "id": "c86c1dd6-758f-4ad0-8346-ef3373b09006",
+      "name": "Conexion a Soft",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Utiliza mi identificador {{ $('Busqueda_E').item.json.query.sessionId }} para obtener mi perfil de la base de datos 'employee_data_soft_skill'. Analiza mis habilidades y, asumiendo mis preferencias culturales, calcula y retorna un objeto JSON con las 8 mejores empresas para mí de la base 'employer_data_cultural_values'. El ranking debe basarse tanto en la compatibilidad cultural como en la sinergia entre mis habilidades y los valores de la empresa.",
+        "options": {
+          "systemMessage": "ROL: Eres un motor avanzado de recomendación de empleadores. Tu misión es realizar un \"match\" cuantitativo y cualitativo entre un empleado y una lista de empleadores.\nOBJETIVO: Procesar el perfil de habilidades blandas de un empleado (obtenido de la BD) y sus preferencias culturales (proporcionadas en el contexto). Luego, debes ejecutar un análisis de compatibilidad multifactorial para generar una lista ordenada de las 8 mejores empresas, devolviendo el resultado exclusivamente en el formato JSON especificado.\nCONTEXTO:\nPerfil del Empleado: Recibirás los datos de employee_data_soft_skill para el sessionId proporcionado. La escala de evaluación es de 0 a 100.\nPreferencias Culturales del Empleado: Recibirás un objeto con la importancia que el empleado le da a cada valor cultural de la empresa. La escala de ponderación es de 0 a 100.\nDatos de Empresas: Tienes acceso a la tabla employer_data_cultural_values, donde cada empresa tiene una puntuación de 0 a 100 para cada valor cultural.\nPROCESO DE EJECUCIÓN (PASO A PASO):\nPaso 1: Cálculo de Compatibilidad Cultural (Puntuación Base)\nPara cada empresa, calcula la puntuación de compatibilidad cultural.\nFórmula: Puntuación_Cultural = Σ (valor_cultural_empresa * peso_preferencia_empleado)\nEl máximo teórico es 1,400,000 (14 campos * 100 * 100).\nPaso 2: Cálculo del Bono de Sinergia por Habilidades (Puntuación Adicional)\nPara reflejar cómo las fortalezas del empleado prosperarían en una empresa, calcula un bono basado en la alineación entre sus habilidades blandas y los valores de la empresa.\nA. Define el Mapeo de Sinergia: Utiliza las siguientes correspondencias para conectar habilidades con valores culturales:\ntrabajo_en_equipo -> anti_silo_collaboration\nresolucion_de_problemas, pensamiento_critico, creatividad -> experimentation_and_innovation, continuous_improvement\nliderazgo, proyeccion_a_futuro -> ownership_and_accountability, clear_purpose_and_vision\nadaptabilidad, resiliencia -> continuous_learning\ninteligencia_emocional, comunicacion -> psychological_safety\netica_laboral -> transparency\nB. Calcula el Bono: Para cada empresa, suma un bono por cada mapeo.\nFórmula del Bono: Bono_Sinergia = Σ ( (habilidad_empleado / 100) * (valor_cultural_empresa_correspondiente / 100) * 5000 )\nEl factor 5000 es un peso para que el bono sea significativo. Por ejemplo, si un empleado tiene 95 en trabajo_en_equipo y la empresa 90 en anti_silo_collaboration, el bono para esa sinergia es (0.95 * 0.90 * 5000) = 4275.\nPaso 3: Cálculo de la Puntuación Final y Ranking\nFórmula Final: Puntuación_Final = Puntuación_Cultural + Bono_Sinergia\nOrdena todas las empresas de mayor a menor Puntuación_Final.\nPaso 4: Generación de la Respuesta JSON\nConstruye un objeto JSON que contenga las 8 mejores empresas. La estructura de la salida DEBE SER la siguiente.\nFORMATO DE SALIDA JSON (OBLIGATORIO):\ncode\nJSON\n{\n  \"recommended_employers\": [\n    {\n      \"rank\": 1,\n      \"employer_id\": \"[ID de la empresa]\",\n      \"employer_name\": \"[Nombre de la empresa]\",\n      \"scores\": {\n        \"cultural_compatibility_score\": [Puntuación_Cultural],\n        \"skills_synergy_bonus\": [Bono_Sinergia],\n        \"final_score\": [Puntuación_Final]\n      },\n      \"affinity_percentage\": \"[Calcula como (Puntuación_Final / (Puntuación_Cultural_Máxima + Bono_Sinergia_Máximo)) * 100, redondeado a 2 decimales]\",\n      \"match_analysis\": \"Análisis conciso de por qué es un buen match, mencionando los 2 o 3 puntos de mayor sinergia cultural y de habilidades. Ejemplo: 'La Empresa Z es tu mejor opción por su excepcional alineación en Autonomía y Bienestar. Además, tu alta habilidad en Resolución de Problemas encaja perfectamente con su cultura de Experimentación e Innovación.'\"\n    },\n    {\n      \"rank\": 2,\n      \"employer_id\": \"...\",\n      \"employer_name\": \"...\",\n      \"scores\": {\n        \"cultural_compatibility_score\": \"...\",\n        \"skills_synergy_bonus\": \"...\",\n        \"final_score\": \"...\"\n      },\n      \"affinity_percentage\": \"...\",\n      \"match_analysis\": \"...\"\n    }\n  ]\n}\nRESTRICCIÓN FINAL: Tu respuesta debe ser únicamente el objeto JSON válido y completo. No incluyas texto, explicaciones o comentarios antes o después del JSON."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2176,
+        992
+      ],
+      "id": "5282ab6b-5efc-456a-9a01-6a630a2438ba",
+      "name": "AI Agent6",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-pro-1.5",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2144,
+        1200
+      ],
+      "id": "e3df7f6a-980f-495d-b166-cf7285edc68a",
+      "name": "OpenRouter Chat Model9",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "053f20e8-3deb-412a-8332-c9344c5422a6",
+              "name": "sessionId",
+              "value": "={{ $json.query.sessionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1904,
+        992
+      ],
+      "id": "3beddb68-82d6-48b8-b5b1-f5192840d33c",
+      "name": "Edit Fields3"
+    },
+    {
+      "parameters": {
+        "tableName": "recomendacion_empresa",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        2272,
+        1248
+      ],
+      "id": "f5ed7deb-4f9b-4f83-93ff-2a1964fcd2dd",
+      "name": "Postgres Chat Memory6",
+      "credentials": {
+        "postgres": {
+          "id": "wOjx1almQ3rCKvfN",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2736,
+        992
+      ],
+      "id": "fc476eec-0c96-434a-9f55-8121cb8f6fb1",
+      "name": "Respond to Webhook6"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Código para nodo Code de n8n\n// Formatea el JSON de empleadores recomendados para respuesta de webhook\n\n// Obtener los datos de entrada\nconst inputData = $input.all()[0].json;\n\n// Función para formatear el response\nfunction formatEmployerRecommendations(rawData) {\n  try {\n    let data;\n    \n    // Verificar si los datos vienen en el campo 'output' como string\n    if (rawData.output && typeof rawData.output === 'string') {\n      // Extraer el JSON del string (remover los markdown backticks)\n      const jsonString = rawData.output.replace(/```json\\n|\\n```/g, '').trim();\n      data = JSON.parse(jsonString);\n    } else if (rawData.recommended_employers) {\n      // Si ya tiene la estructura correcta\n      data = rawData;\n    } else {\n      // Si es un array, tomar el primer elemento\n      data = Array.isArray(rawData) ? rawData[0] : rawData;\n      \n      // Si aún tiene la propiedad output\n      if (data && data.output && typeof data.output === 'string') {\n        const jsonString = data.output.replace(/```json\\n|\\n```/g, '').trim();\n        data = JSON.parse(jsonString);\n      }\n    }\n    \n    // Extraer las recomendaciones\n    const employers = data.recommended_employers || [];\n    \n    // Formatear cada empleador\n    const formattedEmployers = employers.map((employer, index) => ({\n      posicion: employer.rank,\n      empleador: {\n        id: employer.employer_id,\n        nombre: employer.employer_name\n      },\n      puntuacion: {\n        compatibilidad_cultural: employer.scores.cultural_compatibility_score,\n        bonus_sinergia_habilidades: employer.scores.skills_synergy_bonus,\n        puntuacion_final: employer.scores.final_score,\n        porcentaje_afinidad: `${employer.affinity_percentage}%`\n      },\n      analisis_match: employer.match_analysis,\n      recomendacion: index < 3 ? \"Altamente recomendado\" : \n                    index < 5 ? \"Recomendado\" : \"Opción viable\"\n    }));\n    \n    // Crear el response final\n    const formattedResponse = {\n      status: \"success\",\n      mensaje: \"Empleadores recomendados basados en compatibilidad cultural y habilidades\",\n      total_empleadores: formattedEmployers.length,\n      mejores_3: formattedEmployers.slice(0, 3).map(emp => ({\n        nombre: emp.empleador.nombre,\n        afinidad: emp.puntuacion.porcentaje_afinidad\n      })),\n      recomendaciones_completas: formattedEmployers,\n      resumen: {\n        mejor_match: formattedEmployers[0] ? {\n          nombre: formattedEmployers[0].empleador.nombre,\n          afinidad: formattedEmployers[0].puntuacion.porcentaje_afinidad,\n          razon: formattedEmployers[0].analisis_match\n        } : null,\n        rango_afinidad: {\n          maximo: formattedEmployers[0]?.puntuacion.porcentaje_afinidad || \"0%\",\n          minimo: formattedEmployers[formattedEmployers.length - 1]?.puntuacion.porcentaje_afinidad || \"0%\"\n        }\n      }\n    };\n    \n    return formattedResponse;\n    \n  } catch (error) {\n    return {\n      status: \"error\",\n      mensaje: \"Error al formatear las recomendaciones de empleadores\",\n      error: error.message,\n      datos_originales: data\n    };\n  }\n}\n\n// Formatear los datos\nconst formattedData = formatEmployerRecommendations(inputData);\n\n// Retornar los datos formateados\nreturn [{ json: formattedData }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2528,
+        992
+      ],
+      "id": "3eaac88f-c916-490f-ac3d-b4c5b3411067",
+      "name": "Code6"
+    },
+    {
+      "parameters": {
+        "path": "busqueda_empresa",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1632,
+        992
+      ],
+      "id": "49e927c5-d912-46fe-b0ec-07ae5a765d86",
+      "name": "Busqueda_E",
+      "webhookId": "4bde4596-8868-4d98-bedf-f1924ede0224"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "employer_data_cultural_values",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        2752,
+        1680
+      ],
+      "id": "bdea6d9d-127e-46de-8310-bcaf88ada7c2",
+      "name": "Conexion a Cultural1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "employee_data_soft_skill",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        2608,
+        1712
+      ],
+      "id": "49d938ce-12cd-41ef-aab7-d662f9d28f05",
+      "name": "Conexion a Soft1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Utiliza mi identificador {{ $('Busqueda_U').item.json.query.sessionId }} para obtener el perfil empresarial de la base de datos 'employee_data_cultural_values'. Analiza mis intereses y mis preferencias culturales, calcula y retorna un objeto JSON con los 8 mejores usuarios para mí de la base 'employer_data_soft_skill'. El ranking debe basarse tanto en la compatibilidad cultural como en la sinergia entre los valores de la empresa y las habilidades del usuario.",
+        "options": {
+          "systemMessage": "ROL: Eres un motor avanzado de recomendación de candidatos. Tu misión es realizar un \"match\" cuantitativo y cualitativo entre una empresa y una lista de candidatos.\n\nOBJETIVO: Procesar el perfil cultural de la empresa (proporcionado en el contexto) y comparar, para cada candidato, sus habilidades blandas (desde la BD) y sus preferencias culturales (desde el contexto o la BD). Luego, debes ejecutar un análisis de compatibilidad multifactorial para generar una lista ordenada de los 8 mejores candidatos, devolviendo el resultado exclusivamente en el formato JSON especificado.\n\nCONTEXTO:\n\nPerfil Cultural de la Empresa: Recibirás los datos de employer_data_cultural_values para el employer_id proporcionado. La escala de evaluación es de 0 a 100 por valor cultural.\n\nPerfil del Candidato: Recibirás los datos de candidate_data_soft_skill para cada candidato considerado. La escala de evaluación es de 0 a 100 por habilidad.\n\nPreferencias Culturales del Candidato: Recibirás un objeto con la importancia que el candidato le da a cada valor cultural de la empresa. La escala de ponderación es de 0 a 100.\n\nPROCESO DE EJECUCIÓN (PASO A PASO):\n\nPaso 1: Cálculo de Compatibilidad Cultural (Puntuación Base)\nPara cada candidato, calcula la puntuación de compatibilidad cultural entre sus preferencias y los valores reales de la empresa.\nFórmula:\nPuntuación_Cultural = Σ (valor_cultural_empresa * peso_preferencia_candidato)\nEl máximo teórico es 14 * 100 * 100.\n\nPaso 2: Cálculo del Bono de Sinergia por Habilidades (Puntuación Adicional)\nPara reflejar cómo las fortalezas del candidato prosperarían en la empresa, calcula un bono basado en la alineación entre sus habilidades blandas y los valores culturales de la empresa.\n\nA. Mapeo de Sinergia (habilidad -> valor cultural):\n\ntrabajo_en_equipo -> anti_silo_collaboration\n\nresolucion_de_problemas, pensamiento_critico, creatividad -> experimentation_and_innovation, continuous_improvement\n\nliderazgo, proyeccion_a_futuro -> ownership_and_accountability, clear_purpose_and_vision\n\nadaptabilidad, resiliencia -> continuous_learning\n\ninteligencia_emocional, comunicacion -> psychological_safety\n\netica_laboral -> transparency\n\nB. Cálculo del Bono: Para cada candidato, suma un bono por cada mapeo.\nFórmula del Bono:\nBono_Sinergia = Σ ( (habilidad_candidato / 100) * (valor_cultural_empresa_correspondiente / 100) * 5000 )\nEjemplo: si un candidato tiene 95 en trabajo_en_equipo y la empresa 90 en anti_silo_collaboration, el bono para esa sinergia es (0.95 * 0.90 * 5000) = 4275.\n\nPaso 3: Cálculo de la Puntuación Final y Ranking\nFórmula Final:\nPuntuación_Final = Puntuación_Cultural + Bono_Sinergia\nOrdena todos los candidatos de mayor a menor Puntuación_Final.\n\nPaso 4: Generación de la Respuesta JSON\nConstruye un objeto JSON que contenga los 8 mejores candidatos. La estructura de la salida DEBE SER la siguiente.\n\nFORMATO DE SALIDA JSON (OBLIGATORIO):\n{\n  \"recommended_candidates\": [\n    {\n      \"rank\": 1,\n      \"candidate_id\": \"[ID del candidato]\",\n      \"candidate_name\": \"[Nombre del candidato]\",\n      \"scores\": {\n        \"cultural_compatibility_score\": [Puntuación_Cultural],\n        \"skills_synergy_bonus\": [Bono_Sinergia],\n        \"final_score\": [Puntuación_Final]\n      },\n      \"affinity_percentage\": \"[Calcula como (Puntuación_Final / (Puntuación_Cultural_Máxima + Bono_Sinergia_Máximo)) * 100, redondeado a 2 decimales]\",\n      \"match_analysis\": \"Análisis conciso de por qué es un buen match para ESTA empresa, mencionando los 2 o 3 puntos de mayor sinergia cultural y de habilidades. Ejemplo: 'Santiago destaca por su alta afinidad con Autonomía y Bienestar, y su fortaleza en Resolución de Problemas potencia la cultura de Experimentación e Innovación de la empresa.'\"\n    },\n    {\n      \"rank\": 2,\n      \"candidate_id\": \"...\",\n      \"candidate_name\": \"...\",\n      \"scores\": {\n        \"cultural_compatibility_score\": \"...\",\n        \"skills_synergy_bonus\": \"...\",\n        \"final_score\": \"...\"\n      },\n      \"affinity_percentage\": \"...\",\n      \"match_analysis\": \"...\"\n    }\n  ]\n}\n\nRESTRICCIÓN FINAL: Tu respuesta debe ser únicamente el objeto JSON válido y completo. No incluyas texto, explicaciones o comentarios antes o después del JSON."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2208,
+        1472
+      ],
+      "id": "a7c781d7-e462-47ee-87c0-183eee9586ea",
+      "name": "AI Agent7",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "model": "google/gemini-pro-1.5",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        2176,
+        1680
+      ],
+      "id": "b1b032b6-a24c-41ff-8e8f-8b4fc9adc3c8",
+      "name": "OpenRouter Chat Model10",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "053f20e8-3deb-412a-8332-c9344c5422a6",
+              "name": "sessionId",
+              "value": "={{ $json.query.sessionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1936,
+        1472
+      ],
+      "id": "4954c321-c8eb-4696-97d0-e3b1428da1dd",
+      "name": "Edit Fields4"
+    },
+    {
+      "parameters": {
+        "tableName": "recomendacion_usuario",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.3,
+      "position": [
+        2304,
+        1728
+      ],
+      "id": "e6884984-c936-4121-9682-f8b68ff9267e",
+      "name": "Postgres Chat Memory7",
+      "credentials": {
+        "postgres": {
+          "id": "wOjx1almQ3rCKvfN",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        2768,
+        1472
+      ],
+      "id": "ce128c8b-f430-447d-9598-f591a7c41b0b",
+      "name": "Respond to Webhook7"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Código para nodo Code de n8n\n// Formatea el JSON de candidatos recomendados para respuesta de webhook\n\n// Obtener los datos de entrada\nconst inputData = $input.all()[0].json;\n\n// Función para formatear el response\nfunction formatCandidateRecommendations(rawData) {\n  try {\n    let data;\n    \n    // Verificar si los datos vienen en el campo 'output' como string\n    if (rawData.output && typeof rawData.output === 'string') {\n      // Extraer el JSON del string (remover los markdown backticks)\n      const jsonString = rawData.output.replace(/```json\\n|\\n```/g, '').trim();\n      data = JSON.parse(jsonString);\n    } else if (rawData.recommended_candidates) {\n      // Si ya tiene la estructura correcta\n      data = rawData;\n    } else {\n      // Si es un array, tomar el primer elemento\n      data = Array.isArray(rawData) ? rawData[0] : rawData;\n      \n      // Si aún tiene la propiedad output\n      if (data && data.output && typeof data.output === 'string') {\n        const jsonString = data.output.replace(/```json\\n|\\n```/g, '').trim();\n        data = JSON.parse(jsonString);\n      }\n    }\n    \n    // Extraer las recomendaciones\n    const candidates = data.recommended_candidates || [];\n    \n    // Formatear cada candidato\n    const formattedCandidates = candidates.map((candidate, index) => ({\n      posicion: candidate.rank,\n      candidato: {\n        id: candidate.candidate_id,\n        nombre: candidate.candidate_name\n      },\n      puntuacion: {\n        compatibilidad_cultural: candidate.scores.cultural_compatibility_score,\n        bonus_sinergia_habilidades: candidate.scores.skills_synergy_bonus,\n        puntuacion_final: candidate.scores.final_score,\n        porcentaje_afinidad: `${candidate.affinity_percentage}%`\n      },\n      analisis_match: candidate.match_analysis,\n      clasificacion: index < 2 ? \"Candidato excepcional\" : \n                    index < 4 ? \"Candidato altamente recomendado\" : \"Candidato recomendado\"\n    }));\n    \n    // Crear el response final\n    const formattedResponse = {\n      status: \"success\",\n      mensaje: \"Candidatos recomendados basados en compatibilidad cultural y habilidades\",\n      total_candidatos: formattedCandidates.length,\n      top_3: formattedCandidates.slice(0, 3).map(cand => ({\n        nombre: cand.candidato.nombre,\n        afinidad: cand.puntuacion.porcentaje_afinidad,\n        posicion: cand.posicion\n      })),\n      candidatos_completos: formattedCandidates,\n      resumen: {\n        mejor_candidato: formattedCandidates[0] ? {\n          nombre: formattedCandidates[0].candidato.nombre,\n          afinidad: formattedCandidates[0].puntuacion.porcentaje_afinidad,\n          razon: formattedCandidates[0].analisis_match\n        } : null,\n        rango_afinidad: {\n          maximo: formattedCandidates[0]?.puntuacion.porcentaje_afinidad || \"0%\",\n          minimo: formattedCandidates[formattedCandidates.length - 1]?.puntuacion.porcentaje_afinidad || \"0%\"\n        },\n        estadisticas: {\n          promedio_puntuacion_final: formattedCandidates.length > 0 ? \n            (formattedCandidates.reduce((sum, cand) => sum + cand.puntuacion.compatibilidad_cultural, 0) / formattedCandidates.length).toFixed(2) : 0,\n          total_evaluados: formattedCandidates.length\n        }\n      }\n    };\n    \n    return formattedResponse;\n    \n  } catch (error) {\n    return {\n      status: \"error\",\n      mensaje: \"Error al formatear las recomendaciones de candidatos\",\n      error: error.message,\n      datos_originales: rawData\n    };\n  }\n}\n\n// Formatear los datos\nconst formattedData = formatCandidateRecommendations(inputData);\n\n// Retornar los datos formateados\nreturn [{ json: formattedData }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2560,
+        1472
+      ],
+      "id": "e1d56a76-f70b-43ca-9c76-3c032fa95e6f",
+      "name": "Code7"
+    },
+    {
+      "parameters": {
+        "path": "busqueda_usuario",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1664,
+        1472
+      ],
+      "id": "03a29a3d-b877-4623-af25-fd0cb8ee993d",
+      "name": "Busqueda_U",
+      "webhookId": "4bde4596-8868-4d98-bedf-f1924ede0224"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "datos_usuarios",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        2256
+      ],
+      "id": "257c06bb-2073-4b76-bdec-a57052f38683",
+      "name": "Webhook1",
+      "webhookId": "7b7edca9-6d86-47b0-893b-392cbc463643",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "tableId": "users_info",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nombre_completo",
+              "fieldValue": "={{ $json.body.nombre_completo }}"
+            },
+            {
+              "fieldId": "edad",
+              "fieldValue": "={{ $json.body.edad }}"
+            },
+            {
+              "fieldId": "ciudad",
+              "fieldValue": "={{ $json.body.ciudad }}"
+            },
+            {
+              "fieldId": "pais",
+              "fieldValue": "={{ $json.body.pais }}"
+            },
+            {
+              "fieldId": "cargo_actual",
+              "fieldValue": "={{ $json.body.cargo_actual }}"
+            },
+            {
+              "fieldId": "empresa_actual",
+              "fieldValue": "={{ $json.body.empresa_actual }}"
+            },
+            {
+              "fieldId": "anos_experiencia",
+              "fieldValue": "={{ $json.body.anos_experiencia }}"
+            },
+            {
+              "fieldId": "nivel_educacion",
+              "fieldValue": "={{ $json.body.nivel_educacion }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $json.body.email }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        16,
+        2256
+      ],
+      "id": "9c3cab85-90a2-4e23-a226-2aecb6390755",
+      "name": "Create a row3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"Usuario creado\",\n  \"code\": 200\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        224,
+        2256
+      ],
+      "id": "f0107f92-15ef-4230-aabb-edbd7d338647",
+      "name": "Respond to Webhook8",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "users_info",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        2416,
+        1248
+      ],
+      "id": "b4e677cb-56f5-4657-bcd0-f2dbf7dabfad",
+      "name": "Get many rows in Supabase",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "users_info",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        2464,
+        1728
+      ],
+      "id": "737fa462-7bd8-48b6-9950-959031d7a98c",
+      "name": "Get many rows in Supabase1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"sessionId\": \"{{ $('Tecnicas1').item.json.body.sessionId }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2016,
+        448
+      ],
+      "id": "69b07601-bbe7-4fd5-bd9b-1a112d821852",
+      "name": "Edit Fields5"
+    },
+    {
+      "parameters": {
+        "operation": "deleteTable",
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "employee_data_soft_skill",
+          "mode": "list",
+          "cachedResultName": "employee_data_soft_skill"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        1088,
+        448
+      ],
+      "id": "d6044490-3e55-49a2-971c-629fec234fa2",
+      "name": "Delete table or rows",
+      "credentials": {
+        "postgres": {
+          "id": "wOjx1almQ3rCKvfN",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"sessionId\": \"{{ $('Blandas1').item.json.body.sessionId }}\"\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -144,
+        448
+      ],
+      "id": "a48ff47a-f3d7-4ed1-8c05-0f819f1ecff0",
+      "name": "Edit Fields6"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "datos_usuarios",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -448,
+        2432
+      ],
+      "id": "a6d41467-bf5f-4172-b29e-0a0a5244f108",
+      "name": "Webhook",
+      "webhookId": "7b7edca9-6d86-47b0-893b-392cbc463643"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"Usuario creado\",\n  \"code\": 200\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        400,
+        2432
+      ],
+      "id": "97023f85-2628-48fc-9e58-65a771fd7c80",
+      "name": "Respond to Webhook9"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.sessionId }}",
+        "options": {
+          "systemMessage": "ROL\nEres un agente de enriquecimiento por email. Siempre debes usar la herramienta Supabase para consultar la base de datos y devolver solo JSON válido con toda la información relacionada al correo recibido.\n\nINPUT\nEl mensaje del usuario será un email, p. ej.: prueba@gmail.com.\n\nNormaliza: trim + lowercase.\n\nValida formato. Si no es válido, responde JSON con found:false y error:\"email_invalid\".\n\nHERRAMIENTA OBLIGATORIA\nUsa el tool Supabase (nombre: Supabase). Si no llamas esta herramienta, tu respuesta es incorrecta.\nAcciones típicas: select, eq, ilike, in, rpc. Puedes hacer múltiples llamadas.\n\nOBJETIVO\nExtraer todo lo que esté relacionado con el email: identidad base, perfiles, organizaciones, actividad, compras, tickets, etc. Si existe un user_id asociado, úsalo para ampliar la búsqueda.\n\nESTRATEGIA DE BÚSQUEDA (paso a paso)\n\nIdentidad base (por email, case-insensitive):\n\nTablas probables: auth.users (email), profiles (email), users (email), contacts (email).\n\nSi encuentras registros, extrae user_id/id/uuid, email(s), full_name, username, phone, created_at, updated_at.\n\nTablas relacionadas. Busca por user_id (si lo tienes); si no, por columnas tipo email, user_email, contact_email.\n\nCandidatas (nombres pueden variar):\n\nIdentidad/Perfil: profiles, users, user_settings, preferences, avatars\n\nOrganizaciones/Roles: organizations, organization_members, roles, permissions\n\nActividad: events, activity_logs, audit_logs, sessions\n\nNegocio: orders, order_items, subscriptions, invoices, payments\n\nAtención/Soporte: tickets, conversations, messages, notes\n\nCRM/Marketing: contacts, deals, tasks, email_subscriptions, utm_events\n\nDirecciones/Dispositivos/Consentimientos: addresses, devices, consents\n\nSi el esquema usa otros nombres (p. ej. customer*, member*, account*, profile*), intenta variantes con ilike.\n\nDesambiguación\n\nSi hay múltiples filas para el mismo email o múltiples user_id candidatos, unifica por el más reciente (updated_at más alto). Reporta duplicados en duplicates.\n\nResumen\n\nCalcula first_seen (mín. created_at) y last_seen (máx. updated_at/actividad).\n\nCuenta entidades útiles: orgs_count, orders_count, tickets_count.\n\nis_active si existe alguna señal (p. ej., suscripción activa, último login reciente).\n\nCampos sensibles\n\nNunca devuelvas: password, hashed_password, access_token, refresh_token, secret, api_key o equivalentes.\n\nPaginación\n\nSi una tabla tiene más de 1000 resultados, pagina hasta recolectar todo o hasta 5000 como límite razonable.\n\nSALIDA (solo JSON válido, sin texto extra)\nDevuelve un único objeto JSON con esta forma. Incluye solo claves que tengan datos; deja arrays vacíos si procede:\n\n{\n  \"input\": { \"email\": \"…\" },\n  \"found\": true,\n  \"identity\": {\n    \"user_id\": \"…\",\n    \"emails\": [\"…\"],\n    \"full_name\": \"…\",\n    \"username\": \"…\",\n    \"phone\": \"…\"\n  },\n  \"summary\": {\n    \"first_seen\": \"YYYY-MM-DDTHH:MM:SSZ\",\n    \"last_seen\": \"YYYY-MM-DDTHH:MM:SSZ\",\n    \"orgs_count\": 0,\n    \"orders_count\": 0,\n    \"tickets_count\": 0,\n    \"is_active\": true\n  },\n  \"tables\": {\n    \"auth_users\": { \"rows\": [] },\n    \"profiles\": { \"rows\": [] },\n    \"users\": { \"rows\": [] },\n    \"organizations\": { \"rows\": [] },\n    \"organization_members\": { \"rows\": [] },\n    \"roles\": { \"rows\": [] },\n    \"permissions\": { \"rows\": [] },\n    \"events\": { \"rows\": [] },\n    \"activity_logs\": { \"rows\": [] },\n    \"sessions\": { \"rows\": [] },\n    \"orders\": { \"rows\": [] },\n    \"order_items\": { \"rows\": [] },\n    \"subscriptions\": { \"rows\": [] },\n    \"invoices\": { \"rows\": [] },\n    \"payments\": { \"rows\": [] },\n    \"tickets\": { \"rows\": [] },\n    \"conversations\": { \"rows\": [] },\n    \"messages\": { \"rows\": [] },\n    \"notes\": { \"rows\": [] },\n    \"contacts\": { \"rows\": [] },\n    \"deals\": { \"rows\": [] },\n    \"tasks\": { \"rows\": [] },\n    \"addresses\": { \"rows\": [] },\n    \"devices\": { \"rows\": [] },\n    \"consents\": { \"rows\": [] },\n    \"email_subscriptions\": { \"rows\": [] },\n    \"utm_events\": { \"rows\": [] },\n    \"other_tables\": { \"rows\": [] }\n  },\n  \"duplicates\": [\n    { \"table\": \"profiles\", \"reason\": \"multiple rows for same email\", \"row_ids\": [\"…\",\"…\"] }\n  ],\n  \"omitted_sensitive_fields\": [\n    \"password\", \"hashed_password\", \"access_token\", \"refresh_token\", \"secret\", \"api_key\"\n  ]\n}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        2432
+      ],
+      "id": "b1310151-e3d1-4f6e-a9bb-49a20818eedb",
+      "name": "AI Agent8"
+    },
+    {
+      "parameters": {
+        "model": "openai/o3-mini",
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        2656
+      ],
+      "id": "d33d222d-e70d-46bc-8235-84462e6f17ef",
+      "name": "OpenRouter Chat Model11",
+      "credentials": {
+        "openRouterApi": {
+          "id": "GnefHZ77Nl07Zu0N",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        48,
+        2656
+      ],
+      "id": "a4da0649-7dcd-4c39-acda-019568e85908",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "users_info",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        224,
+        2656
+      ],
+      "id": "2625d0d2-e2df-4822-a05b-e582ac30cb15",
+      "name": "Get many rows in Supabase2",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "employee_data_tech_skill",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        352,
+        2704
+      ],
+      "id": "a34bcf00-83b4-4509-8816-b7bb5e73201b",
+      "name": "Get many rows in Supabase3",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "employee_data_soft_skill",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        480,
+        2672
+      ],
+      "id": "85cd62d9-2cb8-4414-bee5-529ef4f239ec",
+      "name": "Get many rows in Supabase4",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "={\n  \"sessionId\": \"{{ $json.body.sessionId}}\",\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -240,
+        2432
+      ],
+      "id": "3f5827ce-5041-4888-ae42-7545b57a26bb",
+      "name": "Edit Fields7"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenRouter Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Code3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        []
+      ]
+    },
+    "Blandas": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Blandas1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tecnicas": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "Get a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser3": {
+      "ai_outputParser": [
+        []
+      ]
+    },
+    "Tecnicas1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row2": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Get a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Delete table or rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent4": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory4": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser4": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent4",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent5": {
+      "main": [
+        [
+          {
+            "node": "Code5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model6": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent5",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory5": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent5",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser5": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent5",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code4": {
+      "main": [
+        [
+          {
+            "node": "AI Agent5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code5": {
+      "main": [
+        [
+          {
+            "node": "Get a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model7": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser5",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Empresa": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Empresa1": {
+      "main": [
+        [
+          {
+            "node": "Code4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get a row1": {
+      "main": [
+        [
+          {
+            "node": "Create a row2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row2": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model8": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Structured Output Parser4",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conexion a Cultural": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent6",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conexion a Soft": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent6",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent6": {
+      "main": [
+        [
+          {
+            "node": "Code6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model9": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent6",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory6": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent6",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code6": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busqueda_E": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conexion a Cultural1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent7",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conexion a Soft1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent7",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent7": {
+      "main": [
+        [
+          {
+            "node": "Code7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model10": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent7",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields4": {
+      "main": [
+        [
+          {
+            "node": "AI Agent7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory7": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent7",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code7": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Busqueda_U": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Create a row3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row3": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows in Supabase": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent6",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows in Supabase1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent7",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields5": {
+      "main": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete table or rows": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields6": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent8": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook9",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model11": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent8",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent8",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows in Supabase2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent8",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows in Supabase3": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent8",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows in Supabase4": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent8",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields7": {
+      "main": [
+        [
+          {
+            "node": "AI Agent8",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "93878919-afa4-4385-bd33-c9fac63d1586",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9201cc2cad9d6cae84ebe665ae940dd678ffa984319b7147f084e630df090c24"
+  },
+  "id": "JwImOOcwfFtuz4vF",
+  "tags": []
+}

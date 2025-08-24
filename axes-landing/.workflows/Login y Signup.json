@@ -1,0 +1,235 @@
+{
+  "name": "Login y Signup",
+  "nodes": [
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://typcxsxyunvlnynfurmx.supabase.co/auth/v1/signup",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"apikey\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cGN4c3h5dW52bG55bmZ1cm14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5NzE4MjgsImV4cCI6MjA3MTU0NzgyOH0.1U6DDYT_5aGMZT9_bnkmEH-tGIByyZgcfiC-rZiLnhk\",\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $json.body.email }}\",\n  \"password\": \"{{ $json.body.password }}\",\n  \"data\": {\n    \"display_name\": \"{{ $json.body.data.display_name }}\",\n    \"type\": \"{{ $json.body.data.type }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        16,
+        0
+      ],
+      "id": "01084fe0-4af2-4a1c-8d0b-416e4e31856d",
+      "name": "HTTP Request",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://typcxsxyunvlnynfurmx.supabase.co/auth/v1/token?grant_type=password",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "supabaseApi",
+        "sendHeaders": true,
+        "specifyHeaders": "json",
+        "jsonHeaders": "{\n  \"apikey\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InR5cGN4c3h5dW52bG55bmZ1cm14Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTU5NzE4MjgsImV4cCI6MjA3MTU0NzgyOH0.1U6DDYT_5aGMZT9_bnkmEH-tGIByyZgcfiC-rZiLnhk\",\n  \"Content-Type\": \"application/json\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"email\": \"{{ $json.body.email }}\",\n  \"password\": \"{{ $json.body.password }}\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        16,
+        208
+      ],
+      "id": "389a2e19-0a85-44e2-8cb9-0cd55ffd8b11",
+      "name": "HTTP Request1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"Usuario creado\",\n  \"code\": 200\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        416,
+        0
+      ],
+      "id": "dd5ab2cb-bdd8-440e-943d-16488928ac6f",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "login",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        208
+      ],
+      "id": "721613e5-a5e5-4741-8046-3d7010c7ee92",
+      "name": "Webhook2",
+      "webhookId": "3fc1f540-f8f5-44c0-8b03-20c918e2a966"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "signin",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        0
+      ],
+      "id": "1840dfb6-2c9d-437d-90ca-313cf9e57fa7",
+      "name": "Webhook1",
+      "webhookId": "a8f6e888-893f-4cff-9c20-52ef4995b4bf"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "{\n  \"message\": \"Inicio de sesión exitoso\",\n  \"code\": 200\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        208,
+        208
+      ],
+      "id": "3cc6b69c-3c60-412a-b0f7-175f88d8d1e7",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "tableId": "user_data",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "id",
+              "fieldValue": "={{ $json.user.identities[0].user_id }}"
+            },
+            {
+              "fieldId": "display_name",
+              "fieldValue": "={{ $json.user.identities[0].identity_data.display_name }}"
+            },
+            {
+              "fieldId": "correo",
+              "fieldValue": "={{ $json.user.identities[0].identity_data.email }}"
+            },
+            {
+              "fieldId": "tipo",
+              "fieldValue": "={{ $json.user.identities[0].identity_data.type }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        224,
+        0
+      ],
+      "id": "24e479b3-68ba-480a-a972-b8e093369ade",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "ib4YeSXJV1Fekg4W",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6a433212-b02f-4771-ad29-cd02a0636745",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "9201cc2cad9d6cae84ebe665ae940dd678ffa984319b7147f084e630df090c24"
+  },
+  "id": "DSb6UBE3rZtuEsv5",
+  "tags": []
+}

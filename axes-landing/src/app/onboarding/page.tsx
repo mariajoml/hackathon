@@ -280,13 +280,71 @@ export default function OnboardingPage() {
           } else {
             const webhookResult = await response.json();
             console.log("✅ Habilidades técnicas enviadas exitosamente:", webhookResult);
+            console.log("🔍 Debug - Estructura del webhook result:", {
+              hasMessage: !!webhookResult.message,
+              messageType: typeof webhookResult.message,
+              messageKeys: webhookResult.message ? Object.keys(webhookResult.message) : [],
+              hasQuestions: !!webhookResult.questions,
+              questionsType: typeof webhookResult.questions
+            });
+            
+            // Guardar la respuesta original del webhook para mapeo posterior
+            localStorage.setItem("original-technical-webhook-response", JSON.stringify(webhookResult));
+            console.log("💾 Respuesta original del webhook de habilidades técnicas guardada");
             
             // Guardar las preguntas del chatbot si vienen en la respuesta
-            if (webhookResult.questions && Array.isArray(webhookResult.questions)) {
+            if (webhookResult.message && typeof webhookResult.message === 'object') {
+              // Extraer todas las preguntas del objeto message
+              const allTechnicalQuestions: string[] = [];
+              
+              console.log("🔍 Debug - Procesando categorías técnicas:", Object.keys(webhookResult.message));
+              
+              Object.values(webhookResult.message).forEach((category: any, index: number) => {
+                console.log(`🔍 Debug - Categoría ${index}:`, {
+                  isArray: Array.isArray(category),
+                  length: Array.isArray(category) ? category.length : 'N/A',
+                  sample: Array.isArray(category) ? category[0] : category
+                });
+                
+                if (Array.isArray(category)) {
+                  category.forEach((item: any, itemIndex: number) => {
+                    console.log(`🔍 Debug - Item ${itemIndex}:`, item);
+                    if (item.afirmacion && typeof item.afirmacion === 'string') {
+                      allTechnicalQuestions.push(item.afirmacion);
+                      console.log(`✅ Pregunta técnica agregada: ${item.afirmacion}`);
+                    }
+                  });
+                }
+              });
+              
+              console.log("🔍 Debug - Total de preguntas técnicas extraídas:", allTechnicalQuestions.length);
+              console.log("🔍 Debug - Preguntas técnicas:", allTechnicalQuestions);
+              
+              if (allTechnicalQuestions.length > 0) {
+                setChatbotQuestions(allTechnicalQuestions);
+                // Guardar en localStorage para que estén disponibles en el chatbot
+                localStorage.setItem("chatbot-questions", JSON.stringify(allTechnicalQuestions));
+                console.log("🤖 Preguntas técnicas del chatbot guardadas:", allTechnicalQuestions);
+                showToast(`Habilidades enviadas y ${allTechnicalQuestions.length} preguntas técnicas recibidas`, "success");
+              } else {
+                // Si no se pudieron extraer preguntas, usar preguntas por defecto
+                const defaultQuestions = [
+                  "¿Cuál es tu experiencia más desafiante en desarrollo?",
+                  "¿Cómo manejas los plazos ajustados en proyectos?",
+                  "¿Qué haces cuando te encuentras con un problema técnico difícil?",
+                  "¿Cómo te mantienes actualizado con las nuevas tecnologías?",
+                  "¿Cuál es tu enfoque para trabajar en equipo?"
+                ];
+                setChatbotQuestions(defaultQuestions);
+                localStorage.setItem("chatbot-questions", JSON.stringify(defaultQuestions));
+                console.log("🤖 Usando preguntas por defecto del chatbot:", defaultQuestions);
+                showToast("Habilidades técnicas enviadas", "success");
+              }
+            } else if (webhookResult.questions && Array.isArray(webhookResult.questions)) {
+              // Formato alternativo (por si acaso)
               setChatbotQuestions(webhookResult.questions);
-              // Guardar en localStorage para que estén disponibles en el chatbot
               localStorage.setItem("chatbot-questions", JSON.stringify(webhookResult.questions));
-              console.log("🤖 Preguntas del chatbot guardadas:", webhookResult.questions);
+              console.log("🤖 Preguntas del chatbot guardadas (formato alternativo):", webhookResult.questions);
               showToast(`Habilidades enviadas y ${webhookResult.questions.length} preguntas recibidas`, "success");
             } else {
               // Si no vienen preguntas, usar preguntas por defecto
