@@ -251,36 +251,7 @@ export default function CompanyOnboardingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label className="text-axes-text-secondary text-sm font-medium block mb-2">
-              LinkedIn
-            </label>
-            <Input
-              type="url"
-              placeholder="https://linkedin.com/company/..."
-              value={data.socialLinks?.linkedin || ""}
-              onChange={(e) => updateData({ 
-                socialLinks: { ...data.socialLinks, linkedin: e.target.value }
-              })}
-              className="axes-input"
-            />
-          </div>
-          <div>
-            <label className="text-axes-text-secondary text-sm font-medium block mb-2">
-              Twitter
-            </label>
-            <Input
-              type="url"
-              placeholder="https://twitter.com/..."
-              value={data.socialLinks?.twitter || ""}
-              onChange={(e) => updateData({ 
-                socialLinks: { ...data.socialLinks, twitter: e.target.value }
-              })}
-              className="axes-input"
-            />
-          </div>
-        </div>
+        {/* Social Links removed */}
       </div>
     </div>
   );

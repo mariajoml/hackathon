@@ -101,6 +101,9 @@ export function useAuth() {
         type: data.data.type
       });
 
+      // Guardar email en localStorage para el onboarding
+      localStorage.setItem("user-email", data.email);
+
       toast.success("¡Cuenta creada exitosamente!");
       // Redirigir según el tipo de usuario
       if (data.data.type === "Empresa") {
@@ -184,6 +187,9 @@ export function useAuth() {
         type: data.data?.type || "Empleado",
         ...result
       });
+
+      // Guardar email en localStorage para el onboarding
+      localStorage.setItem("user-email", data.email);
 
       toast.success("¡Inicio de sesión exitoso!");
       // Redirigir según el tipo de usuario

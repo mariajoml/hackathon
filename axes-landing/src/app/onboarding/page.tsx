@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Toast } from "@/components/ui/toast";
-import { ImageUpload } from "@/components/image-upload";
+// ImageUpload removed - using colors instead
 import { useOnboarding } from "@/hooks/use-onboarding";
+import { EmployeeChatbot } from "@/components/employee-chatbot";
 import { 
   User, 
   Briefcase, 
@@ -19,10 +20,7 @@ import {
   ArrowRight,
   ArrowLeft,
   CheckCircle,
-  Camera,
-  Link,
-  Github,
-  Linkedin
+  Camera
 } from "lucide-react";
 
 interface ProfileData {
@@ -38,7 +36,10 @@ interface ProfileData {
   education: string;
   
   // Habilidades Técnicas
-  skills: string[];
+  skills: Array<{name: string, percentage: number}>;
+  
+  // Descripción Personal
+  personalDescription: string;
   
   // Objetivos
   careerGoals: string;
@@ -48,18 +49,16 @@ interface ProfileData {
   bannerImage?: string;
   biography?: string;
   
-  // Social Links
-  linkedinUrl?: string;
-  githubUrl?: string;
-  portfolioUrl?: string;
+  // Social Links removed
 }
 
 const STEPS = [
   { id: 1, title: "Información Personal", icon: User },
   { id: 2, title: "Experiencia Profesional", icon: Briefcase },
   { id: 3, title: "Habilidades Técnicas", icon: Code },
-  { id: 4, title: "Perfil Visual", icon: Camera },
-  { id: 5, title: "Objetivos Profesionales", icon: GraduationCap },
+  { id: 4, title: "Descripción Personal", icon: MessageCircle },
+  { id: 5, title: "Perfil Visual", icon: Camera },
+  { id: 6, title: "Objetivos Profesionales", icon: GraduationCap },
 ];
 
 export default function OnboardingPage() {
@@ -72,15 +71,20 @@ export default function OnboardingPage() {
     company: "",
     experience: "",
     education: "",
-    skills: [],
+    skills: [] as Array<{name: string, percentage: number}>,
+    personalDescription: "",
     careerGoals: "",
     profileImage: "",
     bannerImage: "",
     biography: "",
-    linkedinUrl: "",
-    githubUrl: "",
-    portfolioUrl: "",
+    // Social links removed
   });
+
+  // Estado para las preguntas del chatbot que vienen del webhook
+  const [chatbotQuestions, setChatbotQuestions] = useState<string[]>([]);
+  
+  // Estado para mostrar el chatbot
+  const [showChatbot, setShowChatbot] = useState(false);
   
   const [newSkill, setNewSkill] = useState("");
   const [toast, setToast] = useState<{
@@ -101,6 +105,18 @@ export default function OnboardingPage() {
     if (existingProfile) {
       setProfileData(existingProfile);
     }
+
+    // Cargar preguntas del chatbot si existen en localStorage
+    const savedQuestions = localStorage.getItem("chatbot-questions");
+    if (savedQuestions) {
+      try {
+        const questions = JSON.parse(savedQuestions);
+        setChatbotQuestions(questions);
+        console.log("🤖 Preguntas del chatbot cargadas desde localStorage:", questions);
+      } catch (error) {
+        console.error("❌ Error cargando preguntas del chatbot:", error);
+      }
+    }
   }, []);
 
   const showToast = (message: string, type: "success" | "error") => {
@@ -112,23 +128,244 @@ export default function OnboardingPage() {
     clearError();
   };
 
-  const updateProfileData = (field: keyof ProfileData, value: string | string[]) => {
+  const updateProfileData = (field: keyof ProfileData, value: string | string[] | Array<{name: string, percentage: number}>) => {
     setProfileData(prev => ({ ...prev, [field]: value }));
   };
 
   const addSkill = () => {
-    if (newSkill.trim() && !profileData.skills.includes(newSkill.trim())) {
-      updateProfileData("skills", [...profileData.skills, newSkill.trim()]);
+    if (newSkill && newSkill.trim() && !profileData.skills.some(skill => skill.name === newSkill.trim())) {
+      const newSkillObj = { 
+        name: newSkill.trim(), 
+        percentage: 50 // Porcentaje por defecto
+      };
+      updateProfileData("skills", [...profileData.skills, newSkillObj]);
       setNewSkill("");
     }
   };
 
   const removeSkill = (skillToRemove: string) => {
-    updateProfileData("skills", profileData.skills.filter(skill => skill !== skillToRemove));
+    updateProfileData("skills", profileData.skills.filter(skill => skill.name !== skillToRemove));
   };
 
-  const nextStep = () => {
+  const updateSkillPercentage = (skillName: string, newPercentage: number) => {
+    if (skillName && typeof newPercentage === 'number' && newPercentage >= 0 && newPercentage <= 100) {
+      updateProfileData("skills", profileData.skills.map(skill => 
+        skill.name === skillName ? { ...skill, percentage: newPercentage } : skill
+      ));
+    }
+  };
+
+  const nextStep = async () => {
     if (currentStep < STEPS.length) {
+      // Si estamos en el paso 2 (Experiencia Profesional), enviar datos al webhook
+      if (currentStep === 2) {
+        try {
+          // Preparar datos para el webhook - Formato exacto de la tabla users_info
+          const webhookData = {
+            email: localStorage.getItem("user-email") || "usuario@axes.com",
+            nombre_completo: profileData.fullName || "",
+            edad: parseInt(profileData.age) || 0,
+            ciudad: profileData.location.includes(",") ? profileData.location.split(",")[0]?.trim() : profileData.location || "",
+            pais: profileData.location.includes(",") ? profileData.location.split(",")[1]?.trim() : "Colombia",
+            cargo_actual: profileData.currentRole || "",
+            empresa_actual: profileData.company || "",
+            anos_experiencia: profileData.experience || "",
+            nivel_educacion: profileData.education || ""
+          };
+
+          // Validar que todos los campos obligatorios estén presentes
+          const requiredFields = ['nombre_completo', 'edad', 'ciudad', 'pais', 'cargo_actual', 'empresa_actual', 'anos_experiencia', 'nivel_educacion'];
+          const missingFields = requiredFields.filter(field => !webhookData[field as keyof typeof webhookData]);
+          
+          if (missingFields.length > 0) {
+            console.error("❌ Campos faltantes:", missingFields);
+            showToast(`Campos faltantes: ${missingFields.join(", ")}`, "error");
+            return; // No continuar si faltan campos
+          }
+
+          console.log("🔄 Enviando datos al webhook:", webhookData);
+          console.log("📋 Formato JSON:", JSON.stringify(webhookData, null, 2));
+          console.log("📏 Tamaño de datos:", JSON.stringify(webhookData).length, "caracteres");
+          console.log("🔍 Validación de campos:", {
+            nombre_completo: webhookData.nombre_completo.length > 0,
+            edad: webhookData.edad > 0,
+            ciudad: webhookData.ciudad.length > 0,
+            pais: webhookData.pais.length > 0,
+            cargo_actual: webhookData.cargo_actual.length > 0,
+            empresa_actual: webhookData.empresa_actual.length > 0,
+            anos_experiencia: webhookData.anos_experiencia.length > 0,
+            nivel_educacion: webhookData.nivel_educacion.length > 0
+          });
+
+          // Enviar datos al webhook
+          const response = await fetch("https://techrea.app.n8n.cloud/webhook/datos_usuarios", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(webhookData),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("❌ Error del webhook:", response.status);
+            console.error("❌ Respuesta del servidor:", errorText);
+            console.error("❌ Datos enviados:", webhookData);
+            
+            // Mostrar error más específico
+            if (response.status === 500) {
+              showToast("Error del servidor - Verifica el formato de datos", "error");
+            } else {
+              showToast(`Error ${response.status}: ${response.statusText}`, "error");
+            }
+          } else {
+            const webhookResult = await response.json();
+            console.log("✅ Datos enviados exitosamente al webhook:", webhookResult);
+            showToast("Datos profesionales enviados", "success");
+          }
+        } catch (err) {
+          console.error("❌ Error enviando datos:", err);
+          showToast("Error enviando datos, pero continuando...", "error");
+        }
+      }
+
+      // Si estamos en el paso 3 (Habilidades Técnicas), enviar habilidades al webhook
+      if (currentStep === 3) {
+        try {
+          // Validar que haya al menos una habilidad
+          if (profileData.skills.length === 0) {
+            showToast("Debes agregar al menos una habilidad técnica", "error");
+            return; // No continuar si no hay habilidades
+          }
+
+          // Preparar datos para el webhook de habilidades técnicas
+          const skillsText = profileData.skills
+            .map(skill => `${skill.name} (${skill.percentage || 0}%)`)
+            .join(", ");
+
+          const webhookData = {
+            sessionId: localStorage.getItem("user-email") || "usuario@axes.com",
+            tecnologies: skillsText
+          };
+
+          console.log("🔄 Enviando habilidades técnicas al webhook:", webhookData);
+          console.log("📋 Formato JSON:", JSON.stringify(webhookData, null, 2));
+          console.log("📏 Tamaño de datos:", JSON.stringify(webhookData).length, "caracteres");
+          console.log("🔍 Validación de campos:", {
+            nombre_completo: webhookData.sessionId.length > 0,
+            edad: webhookData.tecnologies.length > 0
+          });
+
+          // Enviar habilidades al webhook
+          const response = await fetch("https://techrea.app.n8n.cloud/webhook/formulario_habilidades_tecnicas", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(webhookData),
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("❌ Error del webhook de habilidades:", response.status);
+            console.error("❌ Respuesta del servidor:", errorText);
+            console.error("❌ Datos enviados:", webhookData);
+            
+            if (response.status === 500) {
+              showToast("Error enviando habilidades - Verifica el formato", "error");
+            } else {
+              showToast(`Error ${response.status}: ${response.statusText}`, "error");
+            }
+            return; // No continuar si hay error
+          } else {
+            const webhookResult = await response.json();
+            console.log("✅ Habilidades técnicas enviadas exitosamente:", webhookResult);
+            
+            // Guardar las preguntas del chatbot si vienen en la respuesta
+            if (webhookResult.questions && Array.isArray(webhookResult.questions)) {
+              setChatbotQuestions(webhookResult.questions);
+              // Guardar en localStorage para que estén disponibles en el chatbot
+              localStorage.setItem("chatbot-questions", JSON.stringify(webhookResult.questions));
+              console.log("🤖 Preguntas del chatbot guardadas:", webhookResult.questions);
+              showToast(`Habilidades enviadas y ${webhookResult.questions.length} preguntas recibidas`, "success");
+            } else {
+              // Si no vienen preguntas, usar preguntas por defecto
+              const defaultQuestions = [
+                "¿Cuál es tu experiencia más desafiante en desarrollo?",
+                "¿Cómo manejas los plazos ajustados en proyectos?",
+                "¿Qué haces cuando te encuentras con un problema técnico difícil?",
+                "¿Cómo te mantienes actualizado con las nuevas tecnologías?",
+                "¿Cuál es tu enfoque para trabajar en equipo?"
+              ];
+              setChatbotQuestions(defaultQuestions);
+              // Guardar preguntas por defecto en localStorage
+              localStorage.setItem("chatbot-questions", JSON.stringify(defaultQuestions));
+              console.log("🤖 Usando preguntas por defecto del chatbot:", defaultQuestions);
+              showToast("Habilidades técnicas enviadas", "success");
+            }
+          }
+        } catch (err) {
+          console.error("❌ Error enviando habilidades:", err);
+          showToast("Error enviando habilidades, pero continuando...", "error");
+          return; // No continuar si hay error
+        }
+      }
+
+      // Si estamos en el paso 4 (Descripción Personal), enviar al webhook de habilidades blandas
+      if (currentStep === 4) {
+        try {
+          // Validar que haya descripción personal
+          if (!profileData.personalDescription.trim() || profileData.personalDescription.trim().length < 50) {
+            showToast("La descripción personal debe tener al menos 50 caracteres", "error");
+            return; // No continuar si no hay descripción válida
+          }
+
+          // Preparar datos para el webhook de habilidades blandas
+          const message = profileData.personalDescription.trim();
+          const sessionId = localStorage.getItem("user-email") || "usuario@axes.com";
+
+          console.log("🔄 Enviando descripción personal al webhook:", { message, sessionId });
+
+          // Enviar descripción al webhook (como query parameters)
+          const url = `https://techrea.app.n8n.cloud/webhook/formulario_habilidades_blandas?message=${encodeURIComponent(message)}&sessionId=${encodeURIComponent(sessionId)}`;
+          
+          const response = await fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            console.error("❌ Error del webhook de habilidades blandas:", response.status);
+            console.error("❌ Respuesta del servidor:", errorText);
+            console.error("❌ Datos enviados:", { message, sessionId });
+            
+            if (response.status === 500) {
+              showToast("Error enviando descripción - Verifica el formato", "error");
+            } else {
+              showToast(`Error ${response.status}: ${response.statusText}`, "error");
+            }
+            return; // No continuar si hay error
+          } else {
+            const webhookResult = await response.json();
+            console.log("✅ Descripción personal enviada exitosamente:", webhookResult);
+            
+            // Guardar la respuesta del webhook
+            localStorage.setItem("soft-skills-response", JSON.stringify(webhookResult));
+            console.log("💾 Respuesta de habilidades blandas guardada:", webhookResult);
+            
+            showToast("Descripción personal enviada", "success");
+          }
+        } catch (err) {
+          console.error("❌ Error enviando descripción:", err);
+          showToast("Error enviando descripción, pero continuando...", "error");
+          return; // No continuar si hay error
+        }
+      }
+
+      // Continuar al siguiente paso
       setCurrentStep(currentStep + 1);
     }
   };
@@ -139,31 +376,14 @@ export default function OnboardingPage() {
     }
   };
 
-  const isStepValid = () => {
-    switch (currentStep) {
-      case 1:
-        return profileData.fullName && profileData.age && profileData.location;
-      case 2:
-        return profileData.currentRole && profileData.experience && profileData.education;
-      case 3:
-        return profileData.skills.length > 0;
-      case 4:
-        return true; // Perfil visual es opcional
-      case 5:
-        return profileData.careerGoals.trim().length > 0;
-      default:
-        return false;
-    }
-  };
-
   const handleFinishProfile = async () => {
     try {
       const result = await saveProfile(profileData);
       if (result.success) {
         showToast("¡Perfil completado exitosamente!", "success");
-        // Redirigir al chatbot después de un breve delay
+        // Mostrar el chatbot después de un breve delay
         setTimeout(() => {
-          window.location.href = "/chatbot";
+          setShowChatbot(true);
         }, 2000);
       } else {
         showToast(result.message || "Error al guardar el perfil", "error");
@@ -171,6 +391,11 @@ export default function OnboardingPage() {
     } catch (err) {
       showToast("Error de conexión. Inténtalo nuevamente", "error");
     }
+  };
+
+  const handleChatbotComplete = () => {
+    // Redirigir al dashboard después de completar el chatbot
+    window.location.href = "/dashboard";
   };
 
   const renderStepContent = () => {
@@ -308,7 +533,7 @@ export default function OnboardingPage() {
             <div className="text-center mb-8">
               <Code className="w-16 h-16 text-[#7C3AED] mx-auto mb-4" />
               <h2 className="text-2xl font-bold text-white mb-2">Habilidades Técnicas</h2>
-              <p className="text-white/70">Agrega las tecnologías que dominas</p>
+              <p className="text-white/70">Agrega las tecnologías que dominas y su nivel</p>
             </div>
             
             <div className="space-y-4">
@@ -338,19 +563,36 @@ export default function OnboardingPage() {
                   <label className="text-white/80 text-sm font-medium block mb-2">
                     Tus Habilidades ({profileData.skills.length})
                   </label>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="space-y-3">
                     {profileData.skills.map((skill, index) => (
-                      <Badge
-                        key={index}
-                        className="bg-[#7C3AED]/20 text-[#7C3AED] border-[#7C3AED]/30 px-3 py-1 cursor-pointer hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-colors"
-                        onClick={() => removeSkill(skill)}
-                      >
-                        {skill} ×
-                      </Badge>
+                      <div key={index} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
+                        <div className="flex-1">
+                          <span className="text-white font-medium">{skill.name}</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={skill.percentage || 0}
+                            onChange={(e) => updateSkillPercentage(skill.name, parseInt(e.target.value))}
+                            className="w-24 h-2 bg-white/20 rounded-lg appearance-none cursor-pointer slider"
+                          />
+                          <span className="text-white/80 text-sm w-12 text-right">
+                            {skill.percentage || 0}%
+                          </span>
+                        </div>
+                        <Button
+                          onClick={() => removeSkill(skill.name)}
+                          className="bg-red-500/20 hover:bg-red-500/30 text-red-400 border-red-500/30 px-2 py-1 h-8"
+                        >
+                          ×
+                        </Button>
+                      </div>
                     ))}
                   </div>
                   <p className="text-white/50 text-xs mt-2">
-                    Haz clic en una habilidad para eliminarla
+                    Ajusta el porcentaje según tu nivel de dominio
                   </p>
                 </div>
               )}
@@ -362,97 +604,111 @@ export default function OnboardingPage() {
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
-              <Camera className="w-16 h-16 text-[#7C3AED] mx-auto mb-4" />
-              <h2 className="text-2xl font-bold text-white mb-2">Perfil Visual</h2>
-              <p className="text-white/70">Personaliza tu perfil con imágenes y biografía</p>
+              <MessageCircle className="w-16 h-16 text-[#7C3AED] mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-2">Descripción Personal</h2>
+              <p className="text-white/70">Cuéntanos sobre ti en un párrafo corto</p>
             </div>
             
-            <div className="space-y-6">
-              {/* Banner Image */}
-              <div>
-                <ImageUpload
-                  label="Imagen de Banner"
-                  currentImage={profileData.bannerImage}
-                  onImageChange={(imageUrl) => updateProfileData("bannerImage", imageUrl || "")}
-                  aspectRatio="banner"
-                  placeholder="Agrega un banner profesional"
-                />
-              </div>
-
-              {/* Profile Image */}
-              <div>
-                <ImageUpload
-                  label="Foto de Perfil"
-                  currentImage={profileData.profileImage}
-                  onImageChange={(imageUrl) => updateProfileData("profileImage", imageUrl || "")}
-                  aspectRatio="square"
-                  placeholder="Agrega tu foto"
-                />
-              </div>
-
-              {/* Biography */}
+            <div className="space-y-4">
               <div>
                 <label className="text-white/80 text-sm font-medium block mb-2">
-                  Biografía Profesional
+                  Descripción Personal
                 </label>
                 <textarea
-                  value={profileData.biography}
-                  onChange={(e) => updateProfileData("biography", e.target.value)}
-                  placeholder="Cuéntanos sobre ti, tu experiencia y lo que te apasiona en el mundo tech..."
+                  value={profileData.personalDescription}
+                  onChange={(e) => updateProfileData("personalDescription", e.target.value)}
+                  placeholder="Ej: Hola. Soy Jose Rincon Ingeniero mecatrónico con experiencia de 5 años en desarrollo fullstack. Tengo 23 años."
                   rows={4}
                   className="w-full bg-white/5 border border-white/20 text-white placeholder:text-white/40 focus:border-[#7C3AED] rounded-xl px-3 py-2 resize-none focus:outline-none"
                 />
                 <p className="text-white/50 text-xs mt-1">
-                  Opcional - Máximo 500 caracteres ({profileData.biography?.length || 0}/500)
+                  Mínimo 50 caracteres. Describe tu experiencia y perfil profesional.
                 </p>
-              </div>
-
-              {/* Social Links */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label className="text-white/80 text-sm font-medium block mb-2">
-                    <Linkedin className="w-4 h-4 inline mr-2" />
-                    LinkedIn
-                  </label>
-                  <Input
-                    value={profileData.linkedinUrl}
-                    onChange={(e) => updateProfileData("linkedinUrl", e.target.value)}
-                    placeholder="https://linkedin.com/in/tu-perfil"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-[#7C3AED] rounded-xl"
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-white/80 text-sm font-medium block mb-2">
-                    <Github className="w-4 h-4 inline mr-2" />
-                    GitHub
-                  </label>
-                  <Input
-                    value={profileData.githubUrl}
-                    onChange={(e) => updateProfileData("githubUrl", e.target.value)}
-                    placeholder="https://github.com/tu-usuario"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-[#7C3AED] rounded-xl"
-                  />
-                </div>
-                
-                <div>
-                  <label className="text-white/80 text-sm font-medium block mb-2">
-                    <Link className="w-4 h-4 inline mr-2" />
-                    Portfolio
-                  </label>
-                  <Input
-                    value={profileData.portfolioUrl}
-                    onChange={(e) => updateProfileData("portfolioUrl", e.target.value)}
-                    placeholder="https://tu-portfolio.com"
-                    className="bg-white/5 border-white/20 text-white placeholder:text-white/40 focus:border-[#7C3AED] rounded-xl"
-                  />
-                </div>
               </div>
             </div>
           </div>
         );
 
       case 5:
+        return (
+          <div className="space-y-6">
+            <div className="text-center mb-8">
+              <Camera className="w-16 h-16 text-[#7C3AED] mx-auto mb-4" />
+              <h2 className="text-2xl font-bold text-white mb-2">Perfil Visual</h2>
+              <p className="text-white/70">Personaliza tu perfil con imágenes y biografía</p>
+            </div>
+            
+            <div className="space-y-6">
+              {/* Banner Color */}
+              <div>
+                <label className="text-white/80 text-sm font-medium block mb-2">
+                  Color del Banner
+                </label>
+                <div className="grid grid-cols-6 gap-3">
+                  {[
+                    "#7C3AED", "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6",
+                    "#06B6D4", "#84CC16", "#F97316", "#EC4899", "#6366F1", "#14B8A6"
+                  ].map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => updateProfileData("bannerImage", color)}
+                      className={`w-12 h-12 rounded-xl border-2 transition-all ${
+                        profileData.bannerImage === color 
+                          ? "border-white scale-110" 
+                          : "border-white/20 hover:scale-105"
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+                <p className="text-white/50 text-xs mt-2">
+                  Selecciona un color para tu banner personal
+                </p>
+              </div>
+
+              {/* Profile Avatar */}
+              <div>
+                <label className="text-white/80 text-sm font-medium block mb-2">
+                  Avatar de Perfil
+                </label>
+                <div className="flex items-center space-x-4">
+                  <div 
+                    className="w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold text-white border-4 border-white/20"
+                    style={{ backgroundColor: profileData.profileImage || "#7C3AED" }}
+                  >
+                    {profileData.fullName ? profileData.fullName.charAt(0).toUpperCase() : "?"}
+                  </div>
+                  <div className="grid grid-cols-4 gap-2">
+                    {[
+                      "#7C3AED", "#3B82F6", "#10B981", "#F59E0B", 
+                      "#EF4444", "#8B5CF6", "#06B6D4", "#84CC16"
+                    ].map((color) => (
+                      <button
+                        key={color}
+                        type="button"
+                        onClick={() => updateProfileData("profileImage", color)}
+                        className={`w-8 h-8 rounded-full border-2 transition-all ${
+                          profileData.profileImage === color 
+                            ? "border-white scale-110" 
+                            : "border-white/20 hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: color }}
+                      />
+                    ))}
+                  </div>
+                </div>
+                <p className="text-white/50 text-xs mt-2">
+                  Elige un color para tu avatar
+                </p>
+              </div>
+
+              {/* Social Links removed */}
+            </div>
+          </div>
+        );
+
+      case 6:
         return (
           <div className="space-y-6">
             <div className="text-center mb-8">
@@ -485,6 +741,35 @@ export default function OnboardingPage() {
         return null;
     }
   };
+
+  const isStepValid = () => {
+    switch (currentStep) {
+      case 1:
+        return profileData.fullName && profileData.age && profileData.location;
+      case 2:
+        return profileData.currentRole && profileData.experience && profileData.education;
+      case 3:
+        return profileData.skills.length > 0 && profileData.skills.every(skill => skill.name && skill.name.trim() && skill.percentage >= 0);
+      case 4:
+        return profileData.personalDescription && typeof profileData.personalDescription === 'string' && profileData.personalDescription.trim().length >= 50;
+      case 5:
+        return true; // Perfil visual es opcional
+      case 6:
+        return profileData.careerGoals && typeof profileData.careerGoals === 'string' && profileData.careerGoals.trim().length >= 50;
+      default:
+        return false;
+    }
+  };
+
+  // Si debe mostrar el chatbot, renderizarlo
+  if (showChatbot) {
+    return (
+      <EmployeeChatbot 
+        onComplete={handleChatbotComplete}
+        userProfile={profileData}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen py-8 px-4">

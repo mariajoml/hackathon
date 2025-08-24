@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { ImageUpload } from "@/components/image-upload";
+// ImageUpload removed - using colors instead
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Building2, Upload, CheckCircle, ArrowRight } from "lucide-react";
 
@@ -18,12 +18,7 @@ export function CompanyProfileComplete({ companyData, onComplete }: CompanyProfi
   const [profileData, setProfileData] = useState({
     logo: companyData.logo || "",
     banner: companyData.banner || "",
-    bio: companyData.bio || "",
-    socialLinks: {
-      linkedin: companyData.socialLinks?.linkedin || "",
-      twitter: companyData.socialLinks?.twitter || "",
-      website: companyData.socialLinks?.website || ""
-    }
+    bio: companyData.bio || ""
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -100,33 +95,70 @@ export function CompanyProfileComplete({ companyData, onComplete }: CompanyProfi
         </CardHeader>
 
         <CardContent className="space-y-8">
-          {/* Logo y Banner */}
+          {/* Logo y Banner Colors */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Logo */}
+            {/* Logo Color */}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-axes-text-secondary">
-                Logo de la Empresa
+                Color del Logo *
               </label>
-                              <ImageUpload
-                  label="Logo de la Empresa"
-                  currentImage={profileData.logo}
-                  onImageChange={(imageData) => handleImageUpload("logo", imageData || "")}
-                  placeholder="Sube el logo de tu empresa"
-                />
+              <div className="flex items-center space-x-4">
+                <div 
+                  className="w-20 h-20 rounded-2xl flex items-center justify-center text-xl font-bold text-white border-4 border-axes-border shadow-lg"
+                  style={{ backgroundColor: profileData.logo || "#7C3AED" }}
+                >
+                  {companyData.companyName ? companyData.companyName.charAt(0).toUpperCase() : "E"}
+                </div>
+                <div className="grid grid-cols-4 gap-2">
+                  {[
+                    "#7C3AED", "#3B82F6", "#10B981", "#F59E0B", 
+                    "#EF4444", "#8B5CF6", "#06B6D4", "#84CC16"
+                  ].map((color) => (
+                    <button
+                      key={color}
+                      type="button"
+                      onClick={() => handleImageUpload("logo", color)}
+                      className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                        profileData.logo === color 
+                          ? "border-axes-primary scale-110" 
+                          : "border-axes-border hover:scale-105"
+                      }`}
+                      style={{ backgroundColor: color }}
+                    />
+                  ))}
+                </div>
+              </div>
+              <p className="text-xs text-axes-text-muted">
+                Elige un color para representar tu empresa
+              </p>
             </div>
 
-            {/* Banner */}
+            {/* Banner Color */}
             <div className="space-y-3">
               <label className="block text-sm font-medium text-axes-text-secondary">
-                Banner de la Empresa
+                Color del Banner
               </label>
-                              <ImageUpload
-                  label="Banner de la Empresa"
-                  currentImage={profileData.banner}
-                  onImageChange={(imageData) => handleImageUpload("banner", imageData || "")}
-                  placeholder="Sube un banner atractivo"
-                  aspectRatio="banner"
-                />
+              <div className="grid grid-cols-6 gap-2">
+                {[
+                  "#7C3AED", "#3B82F6", "#10B981", "#F59E0B", "#EF4444", "#8B5CF6",
+                  "#06B6D4", "#84CC16", "#F97316", "#EC4899", "#6366F1", "#14B8A6"
+                ].map((color) => (
+                  <button
+                    key={color}
+                    type="button"
+                    onClick={() => handleImageUpload("banner", color)}
+                    className={`w-8 h-8 rounded-lg border-2 transition-all ${
+                      profileData.banner === color 
+                        ? "border-axes-primary scale-110" 
+                        : "border-axes-border hover:scale-105"
+                    }`}
+                    style={{ backgroundColor: color }}
+                  />
+                ))}
+              </div>
+              <p className="text-xs text-axes-text-muted">
+                Selecciona un color para el banner
+              </p>
             </div>
           </div>
 
@@ -147,41 +179,7 @@ export function CompanyProfileComplete({ companyData, onComplete }: CompanyProfi
             </p>
           </div>
 
-          {/* Enlaces Sociales */}
-          <div className="space-y-4">
-            <label className="block text-sm font-medium text-axes-text-secondary">
-              Enlaces Sociales y Web
-            </label>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label className="block text-xs text-axes-text-muted mb-1">LinkedIn</label>
-                <Input
-                  value={profileData.socialLinks.linkedin}
-                  onChange={(e) => handleInputChange("socialLinks.linkedin", e.target.value)}
-                  placeholder="https://linkedin.com/company/..."
-                  className="axes-input"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-axes-text-muted mb-1">Twitter/X</label>
-                <Input
-                  value={profileData.socialLinks.twitter}
-                  onChange={(e) => handleInputChange("socialLinks.twitter", e.target.value)}
-                  placeholder="https://twitter.com/..."
-                  className="axes-input"
-                />
-              </div>
-              <div>
-                <label className="block text-xs text-axes-text-muted mb-1">Portfolio/Sitio Web</label>
-                <Input
-                  value={profileData.socialLinks.website}
-                  onChange={(e) => handleInputChange("socialLinks.website", e.target.value)}
-                  placeholder="https://tuempresa.com"
-                  className="axes-input"
-                />
-              </div>
-            </div>
-          </div>
+          {/* Enlaces Sociales removidos */}
 
           {/* Botón de Envío */}
           <div className="flex justify-center pt-6">
