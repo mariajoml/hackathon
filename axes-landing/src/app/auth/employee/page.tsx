@@ -12,6 +12,7 @@ import { User, Mail, Lock, Eye, EyeOff, ChevronLeft, Building2 } from "lucide-re
 export default function EmployeeAuthPage() {
   const [isLogin, setIsLogin] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
+  const [userType, setUserType] = useState<"Empleado" | "Empresa">("Empleado");
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -37,7 +38,7 @@ export default function EmployeeAuthPage() {
                       password: formData.password,
                       data: {
                         display_name: formData.name,
-                        type: "Empleado"
+                        type: userType
                       }
                     });
         // El hook ya maneja la navegación automáticamente
@@ -105,8 +106,8 @@ export default function EmployeeAuthPage() {
               </CardTitle>
               <CardDescription className="text-axes-text-secondary">
                 {isLogin 
-                  ? "Accede a tu perfil profesional en AXES"
-                  : "Únete a AXES y demuestra tu talento"
+                  ? "Accede a tu perfil en AXES"
+                  : "Únete a AXES y crea tu perfil"
                 }
               </CardDescription>
             </CardHeader>
@@ -114,23 +115,56 @@ export default function EmployeeAuthPage() {
             <CardContent className="space-y-4">
               <form onSubmit={handleSubmit} className="space-y-4">
                 {!isLogin && (
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium text-axes-text-secondary">
-                      Nombre completo
-                    </label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-axes-text-muted" />
-                      <Input
-                        name="name"
-                        type="text"
-                        placeholder="Tu nombre completo"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        className="axes-input pl-10"
-                        required={!isLogin}
-                      />
+                  <>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-axes-text-secondary">
+                        Nombre completo
+                      </label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-axes-text-muted" />
+                        <Input
+                          name="name"
+                          type="text"
+                          placeholder="Tu nombre completo"
+                          value={formData.name}
+                          onChange={handleInputChange}
+                          className="axes-input pl-10"
+                          required={!isLogin}
+                        />
+                      </div>
                     </div>
-                  </div>
+                    
+                    {/* Selección de tipo de usuario */}
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium text-axes-text-secondary">
+                        Tipo de Usuario
+                      </label>
+                      <div className="grid grid-cols-2 gap-3">
+                        <div
+                          className={`p-3 border-2 rounded-xl cursor-pointer transition-all duration-200 text-center ${
+                            userType === "Empleado"
+                              ? "border-axes-primary bg-axes-primary/10 text-axes-primary"
+                              : "border-axes-border hover:border-axes-primary/50"
+                          }`}
+                          onClick={() => setUserType("Empleado")}
+                        >
+                          <User className="w-5 h-5 mx-auto mb-2" />
+                          <span className="text-sm font-medium">Empleado</span>
+                        </div>
+                        <div
+                          className={`p-3 border-2 rounded-xl cursor-pointer transition-all duration-200 text-center ${
+                            userType === "Empresa"
+                              ? "border-axes-primary bg-axes-primary/10 text-axes-primary"
+                              : "border-axes-primary/20 hover:border-axes-primary/50"
+                          }`}
+                          onClick={() => setUserType("Empresa")}
+                        >
+                          <Building2 className="w-5 h-5 mx-auto mb-2" />
+                          <span className="text-sm font-medium">Empresa</span>
+                        </div>
+                      </div>
+                    </div>
+                  </>
                 )}
 
                 <div className="space-y-2">
@@ -191,7 +225,7 @@ export default function EmployeeAuthPage() {
                     ? "Procesando..." 
                     : isLogin 
                       ? "Iniciar Sesión" 
-                      : "Crear Cuenta"
+                      : `Crear Cuenta ${!isLogin ? `como ${userType}` : ""}`
                   }
                 </Button>
               </form>
