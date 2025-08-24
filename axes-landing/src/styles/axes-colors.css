@@ -1,0 +1,116 @@
+/* AXES Modern Color Utilities */
+
+/* Background utilities */
+.bg-axes-primary { background-color: var(--color-axes-bg-primary); }
+.bg-axes-secondary { background-color: var(--color-axes-bg-secondary); }
+.bg-axes-tertiary { background-color: var(--color-axes-bg-tertiary); }
+.bg-axes-card { background-color: var(--color-axes-bg-card); }
+.bg-axes-hover { background-color: var(--color-axes-bg-hover); }
+
+/* Text utilities */
+.text-axes-primary { color: var(--color-axes-text-primary); }
+.text-axes-secondary { color: var(--color-axes-text-secondary); }
+.text-axes-muted { color: var(--color-axes-text-muted); }
+
+/* Border utilities */
+.border-axes { border-color: var(--color-axes-border); }
+.border-axes-light { border-color: var(--color-axes-border-light); }
+
+/* Modern card styles */
+.axes-card {
+  background-color: var(--color-axes-bg-card);
+  border: 1px solid var(--color-axes-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.axes-card:hover {
+  background-color: var(--color-axes-bg-hover);
+  border-color: var(--color-axes-border-light);
+}
+
+/* Modern glass effect */
+.axes-glass {
+  background: rgba(35, 43, 61, 0.7);
+  border: 1px solid rgba(71, 85, 105, 0.3);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* Navigation styles */
+.axes-nav {
+  background: rgba(15, 20, 25, 0.8);
+  border-bottom: 1px solid var(--color-axes-border);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+
+/* Button variants */
+.axes-btn-primary {
+  background: linear-gradient(135deg, var(--color-axes-primary) 0%, var(--color-axes-primary-dark) 100%);
+  border: none;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.2);
+}
+
+.axes-btn-primary:hover {
+  background: linear-gradient(135deg, var(--color-axes-primary-dark) 0%, #4C1D95 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px rgba(124, 58, 237, 0.4);
+}
+
+.axes-btn-secondary {
+  background: var(--color-axes-bg-card);
+  border: 1px solid var(--color-axes-border-light);
+  color: var(--color-axes-text-primary);
+  font-weight: 500;
+}
+
+.axes-btn-secondary:hover {
+  background: var(--color-axes-bg-hover);
+  border-color: var(--color-axes-primary);
+  color: var(--color-axes-primary);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.15);
+}
+
+.axes-btn-outline {
+  background: transparent;
+  border: 2px solid var(--color-axes-border-light);
+  color: var(--color-axes-text-secondary);
+  font-weight: 500;
+}
+
+.axes-btn-outline:hover {
+  background: var(--color-axes-bg-card);
+  border-color: var(--color-axes-primary);
+  color: var(--color-axes-primary);
+}
+
+.axes-btn-ghost {
+  background: transparent;
+  border: none;
+  color: var(--color-axes-text-secondary);
+  font-weight: 500;
+}
+
+.axes-btn-ghost:hover {
+  background: var(--color-axes-bg-card);
+  color: var(--color-axes-text-primary);
+}
+
+/* Input styles */
+.axes-input {
+  background: var(--color-axes-bg-card);
+  border: 1px solid var(--color-axes-border);
+  color: var(--color-axes-text-primary);
+}
+
+.axes-input:focus {
+  border-color: var(--color-axes-primary);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+}
+
+.axes-input::placeholder {
+  color: var(--color-axes-text-muted);
+}
