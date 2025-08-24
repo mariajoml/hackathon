@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Building2, ArrowRight } from "lucide-react";
@@ -12,10 +13,15 @@ interface UserTypeSelectorProps {
 
 export function UserTypeSelector({ onSelect, onBack }: UserTypeSelectorProps) {
   const [selectedType, setSelectedType] = useState<"Empleado" | "Empresa" | null>(null);
+  const router = useRouter();
 
   const handleContinue = () => {
     if (selectedType) {
-      onSelect(selectedType);
+      if (selectedType === "Empleado") {
+        router.push("/auth/employee");
+      } else {
+        router.push("/auth/company");
+      }
     }
   };
 
@@ -24,10 +30,10 @@ export function UserTypeSelector({ onSelect, onBack }: UserTypeSelectorProps) {
       <Card className="w-full max-w-2xl axes-card p-8 shadow-xl rounded-2xl">
         <CardHeader className="text-center mb-8">
           <CardTitle className="text-4xl font-bold text-axes-primary mb-4">
-            ¿Qué tipo de usuario eres?
+            Únete a AXES
           </CardTitle>
           <CardDescription className="text-xl text-axes-text-secondary">
-            Selecciona tu tipo de cuenta para continuar con el registro
+            Selecciona tu tipo de cuenta y comienza a mostrar tu trabajo real
           </CardDescription>
         </CardHeader>
 
@@ -106,7 +112,7 @@ export function UserTypeSelector({ onSelect, onBack }: UserTypeSelectorProps) {
               disabled={!selectedType}
               className="axes-btn-primary rounded-xl px-8 ml-auto"
             >
-              Continuar
+              {selectedType ? `Continuar como ${selectedType}` : "Selecciona una opción"}
             </Button>
           </div>
         </CardContent>
