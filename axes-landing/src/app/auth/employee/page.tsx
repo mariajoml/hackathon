@@ -32,11 +32,14 @@ export default function EmployeeAuthPage() {
         });
         // El hook ya maneja la navegación automáticamente
       } else {
-        await signup({
-          email: formData.email,
-          password: formData.password,
-          display_name: formData.name,
-        });
+                            await signup({
+                      email: formData.email,
+                      password: formData.password,
+                      data: {
+                        display_name: formData.name,
+                        type: "Empleado"
+                      }
+                    });
         // El hook ya maneja la navegación automáticamente
       }
     } catch (err) {

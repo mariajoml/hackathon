@@ -9,12 +9,18 @@ import { optimizedStorage } from "@/lib/performance";
 interface SignupData {
   email: string;
   password: string;
-  display_name: string;
+  data: {
+    display_name: string;
+    type: "Empleado" | "Empresa";
+  };
 }
 
 interface LoginData {
   email: string;
   password: string;
+  data?: {
+    type: "Empleado" | "Empresa";
+  };
 }
 
 interface AuthResponse {
@@ -46,8 +52,8 @@ export function useAuth() {
         email: data.email,
         password: data.password,
         data: {
-          display_name: data.display_name,
-          type: "Empleado"
+          display_name: data.data.display_name,
+          type: data.data.type
         },
       };
 
@@ -91,12 +97,17 @@ export function useAuth() {
       optimizedStorage.set("axes-employee-auth", "true");
       optimizedStorage.set("axes-employee-profile", {
         email: data.email,
-        display_name: data.display_name,
-        type: "Empleado"
+        display_name: data.data.display_name,
+        type: data.data.type
       });
 
       toast.success("¡Cuenta creada exitosamente!");
-      router.push("/onboarding");
+      // Redirigir según el tipo de usuario
+      if (data.data.type === "Empresa") {
+        router.push("/company/onboarding");
+      } else {
+        router.push("/onboarding");
+      }
 
       return {
         success: true,
@@ -104,7 +115,7 @@ export function useAuth() {
         data: {
           ...result,
           type: "Empleado" as const,
-          display_name: data.display_name
+          display_name: data.data.display_name
         },
       };
     } catch (err) {
@@ -170,12 +181,18 @@ export function useAuth() {
       optimizedStorage.set("axes-employee-auth", "true");
       optimizedStorage.set("axes-employee-profile", {
         email: data.email,
-        type: "Empleado",
+        type: data.data?.type || "Empleado",
         ...result
       });
 
       toast.success("¡Inicio de sesión exitoso!");
-      router.push("/dashboard");
+      // Redirigir según el tipo de usuario
+      const userType = data.data?.type || "Empleado";
+      if (userType === "Empresa") {
+        router.push("/company/dashboard");
+      } else {
+        router.push("/dashboard");
+      }
 
       return {
         success: true,

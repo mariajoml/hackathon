@@ -98,7 +98,14 @@ export function AuthSection() {
           showToast(result.message || "Error al iniciar sesión", "error");
         }
       } else {
-        const result = await signup({ email, password, display_name: displayName });
+        const result = await signup({ 
+          email, 
+          password, 
+          data: {
+            display_name: displayName,
+            type: "Empleado"
+          }
+        });
         if (result.success) {
           showToast("¡Cuenta creada exitosamente! Ya puedes iniciar sesión", "success");
           resetForm();
@@ -289,7 +296,14 @@ export function AuthSection() {
                         display_name: "Usuario Test"
                       };
                       console.log("🧪 Testing signup endpoint...");
-                      const result = await signup(testData);
+                      const result = await signup({
+                        email: testData.email,
+                        password: testData.password,
+                        data: {
+                          display_name: testData.display_name,
+                          type: "Empleado"
+                        }
+                      });
                       console.log("📋 Resultado del test:", result);
                     }}
                     className="text-xs bg-blue-500/20 text-blue-400 border border-blue-500/30 px-3 py-1 rounded"
