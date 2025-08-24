@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useCompanyOnboarding } from "@/hooks/use-company-onboarding";
 import { Building2, Users, Globe, Heart, ArrowLeft, ArrowRight, Check, Plus, X, MapPin, Mail, User, Briefcase } from "lucide-react";
+import { CompanyChatbot } from "@/components/company-chatbot";
+import { CompanyProfileComplete } from "@/components/company-profile-complete";
 
 const INDUSTRIES = [
   "Tecnología", "Fintech", "E-commerce", "Salud", "Educación", 
@@ -26,7 +28,9 @@ const STEPS = [
   { id: 1, title: "Información Básica", icon: Building2 },
   { id: 2, title: "Contacto", icon: Users },
   { id: 3, title: "Perfil Empresarial", icon: Globe },
-  { id: 4, title: "Cultura y Beneficios", icon: Heart }
+  { id: 4, title: "Cultura y Beneficios", icon: Heart },
+  { id: 5, title: "Validación con IA", icon: Building2 },
+  { id: 6, title: "Perfil Completo", icon: Building2 }
 ];
 
 export default function CompanyOnboardingPage() {
@@ -54,6 +58,14 @@ export default function CompanyOnboardingPage() {
     if (data.currentStep < STEPS.length) {
       nextStep();
     }
+  };
+
+  const handleChatbotComplete = () => {
+    nextStep();
+  };
+
+  const handleProfileComplete = () => {
+    router.push("/company/dashboard");
   };
 
   const handleComplete = async () => {
@@ -381,6 +393,8 @@ export default function CompanyOnboardingPage() {
       case 2: return renderStep2();
       case 3: return renderStep3();
       case 4: return renderStep4();
+      case 5: return <CompanyChatbot onComplete={handleChatbotComplete} companyData={data} />;
+      case 6: return <CompanyProfileComplete onComplete={handleProfileComplete} companyData={data} />;
       default: return renderStep1();
     }
   };

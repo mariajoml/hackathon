@@ -22,7 +22,14 @@ const INITIAL_DATA: CompanyOnboardingData = {
   location: "",
   benefits: [],
   culture: [],
-  socialLinks: {}
+  logo: "",
+  banner: "",
+  bio: "",
+      socialLinks: {
+      linkedin: "",
+      twitter: "",
+      website: ""
+    }
 };
 
 export function useCompanyOnboarding() {
@@ -138,6 +145,10 @@ export function useCompanyOnboarding() {
         return !!(data.description && data.website);
       case 4: // Cultura y beneficios
         return data.benefits.length > 0 && data.culture.length > 0;
+      case 5: // Chatbot de validación
+        return true; // Siempre puede proceder después del chatbot
+      case 6: // Perfil completo (imagen, bio)
+        return !!(data.logo && data.bio);
       default:
         return false;
     }

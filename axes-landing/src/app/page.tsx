@@ -1,3 +1,5 @@
+"use client";
+
 import { Navbar } from "@/components/navbar";
 import { Hero } from "@/components/hero";
 import { ValueProposition } from "@/components/value-proposition";
@@ -17,7 +19,7 @@ export default function Home() {
       <HowItWorks />
       <RealConnections />
       <DemoSection />
-      <UserTypeSelector />
+      <UserTypeSelector onSelect={() => {}} />
       <FAQSection />
       <Footer />
     </main>
